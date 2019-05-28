@@ -1,0 +1,75 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2><a id="table_{{ table.name }}"></a>
+        Table: {{ table.name }}</h2>
+    {% for tag in table.tags %}
+        <span class="badge badge-info">{{ tag.name }}</span>
+    {% endfor %}<br />
+    <h4>Columns</h4>
+    <input id="searchInput" autofocus class="form-control" style="margin-top: 10px; margin-bottom: 10px;" placeholder="Search... "/>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Alias</th>
+            <th>Label / Description</th>
+            <th>Type</th>
+            <th>Link</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        {% for column in table.columns %}
+            <tr>
+                <td>
+                    <a id="field_{{ table.name }}.{{ column.name }}"></a>
+                    <code class="badge badge-secondary">{{ column.name }}</code><br />
+                    {% if column.alias %}
+                    <code class="badge badge-primary">{{ column.alias }}</code>
+                    {% else %}
+                    <code class="badge badge-warning">NO ALIAS</code>
+                    {% endif %}
+                </td>
+                <td>
+                </td>
+                <td>
+                    <b>{{ column.label|default(column.name|upper) }}</b><br/>
+                    {% if column.doc %}
+                        <i>{{ column.doc }}</i><br/>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ column.type }}
+                <td>
+                    {% if column.foreignKey %}
+                        <a href="table__{{ column.foreignTable }}.html#field_{{ column.foreignKey }}">
+                            &gt;{{ column.foreignKey }}
+                        </a><br/>
+                    {% endif %}
+                    {% if column.codelist %}
+                        <a href="codelist__{{ column.codelist }}.html">
+                            @{{ column.codelist }}
+                        </a><br/>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for propertyName, propertyValue in table.properties %}
+            <tr>
+                <td>
+                    <code>{{ propertyName }}</code>
+                </td>
+                <td>
+                    <b>{{ propertyValue }}</b>
+                </td>
+                <td>
+                    property
+                </td>
+                <td></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a href="./tables.html">Back to tableindex</a>
+{% endblock %}

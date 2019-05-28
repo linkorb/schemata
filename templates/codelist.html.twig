@@ -1,0 +1,27 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2><a id="codelist__{{ name }}"></a>
+        Codelist: {{ name }}</h2>
+
+    <h4>Items</h4>
+
+    <table class="table">
+        <tr>
+            <th style="width: 1px;">Code</th>
+            <th>Label</th>
+        </tr>
+        {% for item in items %}
+            <tr>
+                <td>
+                    <a id="codelist_item__{{ name }}__{{ item.code }}"></a>
+                    <code style="white-space: nowrap;">{{ item.code }}</code>
+                </td>
+                <td>
+                    {{ item.name }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="./codelists.html">Back to codelist index</a>
+{% endblock %}

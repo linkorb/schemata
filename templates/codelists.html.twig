@@ -1,0 +1,15 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2>Codelist index</h2>
+    <input id="searchInput" autofocus class="form-control" style="margin-top: 10px; margin-bottom: 10px;" placeholder="Search... "/>
+    <table>
+        <tbody id="table-body">
+        {% for name, codes in codelists %}
+            <tr>
+                <td><a href="./codelist__{{ name }}.html">{{ name }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

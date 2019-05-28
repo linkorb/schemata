@@ -1,0 +1,18 @@
+{
+    "require": {
+        "symfony/console": "^4.2",
+        "symfony/finder": "^4.2",
+        "symfony/serializer": "^4.2",
+        "symfony/property-access": "^4.2",
+        "twig/twig": "^2.6",
+        "symfony/yaml": "^4.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "LinkORB\\Schema\\": "src"
+        },
+        "classmap": [
+            "src"
+        ]
+    }
+}

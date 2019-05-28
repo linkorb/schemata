@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use LinkORB\Schema\Command\GenerateContextSchemaCommand;
+use LinkORB\Schema\Command\GenerateGraphQLSchemaCommand;
+use LinkORB\Schema\Command\GenerateHtmlDocCommand;
+use Symfony\Component\Console\Application;
+
+$app = new Application();
+
+$app->add(new GenerateHtmlDocCommand());
+$app->add(new GenerateContextSchemaCommand());
+$app->add(new GenerateGraphQLSchemaCommand());
+
+$app->run();
