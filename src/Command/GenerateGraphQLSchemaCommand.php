@@ -3,15 +3,17 @@
 namespace LinkORB\Schema\Command;
 
 use LinkORB\Schema\Service\GraphQLGeneratorService;
+use LinkORB\Schema\Service\SchemaProviderPath;
 use LinkORB\Schema\Service\SchemaService;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateGraphQLSchemaCommand extends Command
 {
-    private const PATH_SCHEMA = __DIR__ . '/../../schema';
-    private const PATH_OUTPUT = __DIR__ . '/../../build/graphql';
+    private const ARGUMENT_INPUT_PATH  = 'inputPath';
+    private const ARGUMENT_OUTPUT_PATH = 'outputPath';
 
     private const OPTION_BUNDLE = 'bundle';
 
@@ -20,6 +22,18 @@ class GenerateGraphQLSchemaCommand extends Command
         $this->setName('generate:graphql-schema')
             ->setDescription('GraphQL Schema Generation.')
             ->setHelp('This command allows you to parse the schema and generate GraphQL schema.')
+            ->addArgument(
+                self::ARGUMENT_INPUT_PATH,
+                InputArgument::OPTIONAL,
+                'Schema Directory Path',
+                __DIR__ . '/../../schema'
+            )
+            ->addArgument(
+                self::ARGUMENT_OUTPUT_PATH,
+                InputArgument::OPTIONAL,
+                'GraphQL Output Path',
+                __DIR__ . '/../../build/graphql'
+            )
             ->addOption(self::OPTION_BUNDLE);
     }
 
@@ -27,8 +41,12 @@ class GenerateGraphQLSchemaCommand extends Command
     {
         $output->writeln('Starting the Schema parsing...');
 
+        $schemaProvider = new SchemaProviderPath(
+            $input->getArgument(self::ARGUMENT_INPUT_PATH)
+        );
+
         $service = new SchemaService(
-            self::PATH_SCHEMA,
+            $schemaProvider->getSchema(),
             SchemaService::CODELISTS_AS_TABLES
         );
 
@@ -36,7 +54,10 @@ class GenerateGraphQLSchemaCommand extends Command
 
         $schema = $service->getSchema();
 
-        $generator = new GraphQLGeneratorService($schema, self::PATH_OUTPUT);
+        $generator = new GraphQLGeneratorService(
+            $schema,
+            $input->getArgument(self::ARGUMENT_OUTPUT_PATH)
+        );
 
         $generator->generate($input->getOption(self::OPTION_BUNDLE));
 

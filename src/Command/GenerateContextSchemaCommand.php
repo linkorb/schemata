@@ -2,16 +2,18 @@
 
 namespace LinkORB\Schema\Command;
 
+use LinkORB\Schema\Service\SchemaProviderPath;
 use LinkORB\Schema\Service\SchemaService;
 use LinkORB\Schema\Service\YamlGeneratorService;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateContextSchemaCommand extends Command
 {
-    private const PATH_SCHEMA = __DIR__ . '/../../schema';
-    private const PATH_OUTPUT = __DIR__ . '/../../build/context';
+    private const ARGUMENT_INPUT_PATH  = 'inputPath';
+    private const ARGUMENT_OUTPUT_PATH = 'outputPath';
 
     private const OPTION_BUNDLE = 'bundle';
 
@@ -20,6 +22,18 @@ class GenerateContextSchemaCommand extends Command
         $this->setName('generate:context-schema')
             ->setDescription('Context Schema Generation.')
             ->setHelp('This command allows you to parse the schema and generate context yaml.')
+            ->addArgument(
+                self::ARGUMENT_INPUT_PATH,
+                InputArgument::OPTIONAL,
+                'Schema Directory Path',
+                __DIR__ . '/../../schema'
+            )
+            ->addArgument(
+                self::ARGUMENT_OUTPUT_PATH,
+                InputArgument::OPTIONAL,
+                'Context Output Path',
+                __DIR__ . '/../../build/context'
+            )
             ->addOption(self::OPTION_BUNDLE);
     }
 
@@ -27,8 +41,12 @@ class GenerateContextSchemaCommand extends Command
     {
         $output->writeln('Starting the Schema parsing...');
 
+        $schemaProvider = new SchemaProviderPath(
+            $input->getArgument(self::ARGUMENT_INPUT_PATH)
+        );
+
         $service = new SchemaService(
-            self::PATH_SCHEMA,
+            $schemaProvider->getSchema(),
             SchemaService::CODELISTS_AS_TABLES
         );
 
@@ -36,7 +54,10 @@ class GenerateContextSchemaCommand extends Command
 
         $schema = $service->getSchema();
 
-        $generator = new YamlGeneratorService($schema, self::PATH_OUTPUT);
+        $generator = new YamlGeneratorService(
+            $schema,
+            $input->getArgument(self::ARGUMENT_OUTPUT_PATH)
+        );
 
         $generator->generate($input->getOption(self::OPTION_BUNDLE));
 
