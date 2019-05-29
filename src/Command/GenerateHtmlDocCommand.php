@@ -22,17 +22,14 @@ class GenerateHtmlDocCommand extends Command
             ->setHelp('This command allows you to parse schema and generate HTML Doc.')
             ->addArgument(
                 self::ARGUMENT_INPUT_PATH,
-                InputArgument::OPTIONAL,
-                'Schema Directory Path',
-                __DIR__ . '/../../schema'
+                InputArgument::REQUIRED,
+                'Schema Directory Path'
             )
             ->addArgument(
                 self::ARGUMENT_OUTPUT_PATH,
-                InputArgument::OPTIONAL,
-                'HTML Doc Output Path',
-                __DIR__ . '/../../build/html-doc'
+                InputArgument::REQUIRED,
+                'HTML Doc Output Path'
             );
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

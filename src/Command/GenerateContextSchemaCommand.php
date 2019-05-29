@@ -24,15 +24,13 @@ class GenerateContextSchemaCommand extends Command
             ->setHelp('This command allows you to parse the schema and generate context yaml.')
             ->addArgument(
                 self::ARGUMENT_INPUT_PATH,
-                InputArgument::OPTIONAL,
-                'Schema Directory Path',
-                __DIR__ . '/../../schema'
+                InputArgument::REQUIRED,
+                'Schema Directory Path'
             )
             ->addArgument(
                 self::ARGUMENT_OUTPUT_PATH,
-                InputArgument::OPTIONAL,
-                'Context Output Path',
-                __DIR__ . '/../../build/context'
+                InputArgument::REQUIRED,
+                'Context Output Path'
             )
             ->addOption(self::OPTION_BUNDLE);
     }

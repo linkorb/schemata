@@ -24,15 +24,13 @@ class GenerateGraphQLSchemaCommand extends Command
             ->setHelp('This command allows you to parse the schema and generate GraphQL schema.')
             ->addArgument(
                 self::ARGUMENT_INPUT_PATH,
-                InputArgument::OPTIONAL,
-                'Schema Directory Path',
-                __DIR__ . '/../../schema'
+                InputArgument::REQUIRED,
+                'Schema Directory Path'
             )
             ->addArgument(
                 self::ARGUMENT_OUTPUT_PATH,
-                InputArgument::OPTIONAL,
-                'GraphQL Output Path',
-                __DIR__ . '/../../build/graphql'
+                InputArgument::REQUIRED,
+                'GraphQL Output Path'
             )
             ->addOption(self::OPTION_BUNDLE);
     }
