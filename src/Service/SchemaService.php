@@ -1,10 +1,11 @@
 <?php
 
-namespace LinkORB\Schema\Service;
+namespace LinkORB\Schemata\Service;
 
-use LinkORB\Schema\Entity\Codelist;
-use LinkORB\Schema\Entity\XmlPackage;
-use LinkORB\Schema\Entity\Schema;
+use LinkORB\Schemata\Entity\Codelist;
+use LinkORB\Schemata\Entity\XmlPackage;
+use LinkORB\Schemata\Entity\Schema;
+use RuntimeException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -111,12 +112,12 @@ class SchemaService
 
     /**
      * @return Schema
-     * @throws \Exception
+     * @throws RuntimeException
      */
     public function getSchema(): Schema
     {
         if (!$this->schema instanceof Schema) {
-            throw new \RuntimeException('There is no Schema.');
+            throw new RuntimeException('There is no Schema.');
         }
 
         return $this->schema;

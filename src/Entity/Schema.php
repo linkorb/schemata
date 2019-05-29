@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schema\Entity;
+namespace LinkORB\Schemata\Entity;
 
 class Schema
 {

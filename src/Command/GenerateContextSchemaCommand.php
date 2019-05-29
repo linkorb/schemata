@@ -1,10 +1,10 @@
 <?php
 
-namespace LinkORB\Schema\Command;
+namespace LinkORB\Schemata\Command;
 
-use LinkORB\Schema\Service\SchemaProviderPath;
-use LinkORB\Schema\Service\SchemaService;
-use LinkORB\Schema\Service\YamlGeneratorService;
+use LinkORB\Schemata\Service\SchemaProviderPath;
+use LinkORB\Schemata\Service\SchemaService;
+use LinkORB\Schemata\Service\YamlGeneratorService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

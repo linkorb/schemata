@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schema\Service;
+namespace LinkORB\Schemata\Service;
 
 class GraphQLGeneratorService extends AbstractGeneratorService
 {

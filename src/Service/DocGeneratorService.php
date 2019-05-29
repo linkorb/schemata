@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schema\Service;
+namespace LinkORB\Schemata\Service;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;

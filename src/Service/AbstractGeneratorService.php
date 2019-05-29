@@ -1,8 +1,9 @@
 <?php
 
-namespace LinkORB\Schema\Service;
+namespace LinkORB\Schemata\Service;
 
-use LinkORB\Schema\Entity\Schema;
+use LinkORB\Schemata\Entity\Schema;
+use RuntimeException;
 
 abstract class AbstractGeneratorService
 {
@@ -29,7 +30,7 @@ abstract class AbstractGeneratorService
     protected function checkSchema(): void
     {
         if (!$this->schema instanceof Schema) {
-            throw new \RuntimeException('There is no Schema to Doc generation.');
+            throw new RuntimeException('There is no Schema to Doc generation.');
         }
     }
 
@@ -48,7 +49,7 @@ abstract class AbstractGeneratorService
         }
 
         if (!array_key_exists($type, $this->getType())) {
-            throw new \RuntimeException('Unknown Type');
+            throw new RuntimeException('Unknown Type');
         }
 
         $type = $this->getType()[$type];
@@ -63,7 +64,7 @@ abstract class AbstractGeneratorService
             !mkdir($concurrentDirectory = $this->pathOutput, 0777, true) &&
             !is_dir($concurrentDirectory)
         ) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
         }
     }
 

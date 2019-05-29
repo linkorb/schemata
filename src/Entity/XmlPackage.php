@@ -1,12 +1,12 @@
 <?php
 
-namespace LinkORB\Schema\Entity;
+namespace LinkORB\Schemata\Entity;
 
 /**
  * Reflects single schema xml file as a package of tables
  *
  * Class XmlPackage
- * @package LinkORB\Schema\Entity
+ * @package LinkORB\Schemata\Entity
  */
 class XmlPackage
 {

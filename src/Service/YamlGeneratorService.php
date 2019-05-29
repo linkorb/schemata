@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schema\Service;
+namespace LinkORB\Schemata\Service;
 
 use Symfony\Component\Yaml\Yaml;
 

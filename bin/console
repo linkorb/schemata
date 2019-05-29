@@ -4,9 +4,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use LinkORB\Schema\Command\GenerateContextSchemaCommand;
-use LinkORB\Schema\Command\GenerateGraphQLSchemaCommand;
-use LinkORB\Schema\Command\GenerateHtmlDocCommand;
+use LinkORB\Schemata\Command\GenerateContextSchemaCommand;
+use LinkORB\Schemata\Command\GenerateGraphQLSchemaCommand;
+use LinkORB\Schemata\Command\GenerateHtmlDocCommand;
 use Symfony\Component\Console\Application;
 
 $app = new Application();

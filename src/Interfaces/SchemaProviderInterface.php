@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schema\Interfaces;
+namespace LinkORB\Schemata\Interfaces;
 
 interface SchemaProviderInterface
 {

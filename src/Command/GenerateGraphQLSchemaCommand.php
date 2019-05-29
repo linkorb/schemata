@@ -1,10 +1,10 @@
 <?php
 
-namespace LinkORB\Schema\Command;
+namespace LinkORB\Schemata\Command;
 
-use LinkORB\Schema\Service\GraphQLGeneratorService;
-use LinkORB\Schema\Service\SchemaProviderPath;
-use LinkORB\Schema\Service\SchemaService;
+use LinkORB\Schemata\Service\GraphQLGeneratorService;
+use LinkORB\Schemata\Service\SchemaProviderPath;
+use LinkORB\Schemata\Service\SchemaService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
