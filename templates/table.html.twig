@@ -4,10 +4,16 @@
     <h2><a id="table_{{ table.name }}"></a>
         Table: {{ table.name }}</h2>
     {% for tag in table.tags %}
-        <span class="badge badge-info">{{ tag.name }}</span>
+        <a href="tables__tag_{{ tag.name }}.html"><span class="badge badge-info">{{ tag.name }}</span></a>
     {% endfor %}<br/>
     <h4>Columns</h4>
-    <input id="searchInput" autofocus class="form-control" style="margin-top: 10px; margin-bottom: 10px;" placeholder="Search... "/>
+    <input
+            id="searchInput"
+            autofocus
+            class="form-control"
+            style="margin-top: 10px; margin-bottom: 10px;"
+            placeholder="Search... "
+    />
 
     <table class="table">
         <thead>

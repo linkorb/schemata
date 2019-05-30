@@ -58,6 +58,15 @@ class DocGeneratorService extends AbstractGeneratorService
                 ])
             );
         }
+
+        foreach ($this->schema->getTaggedTables() as $tagName => $taggedTables) {
+            file_put_contents(
+                $this->pathOutput . '/tables__tag_' . $tagName . '.html',
+                $twig->render('tables.html.twig', [
+                    'tables' => $taggedTables,
+                ])
+            );
+        }
     }
 
     protected function deleteObsoleteFiles(bool $bundle = false): void

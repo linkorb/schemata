@@ -15,6 +15,16 @@ class Schema
     private $codelists = [];
 
     /**
+     * @var array
+     */
+    private $taggedTables = [];
+
+    public function getTaggedTables(): array
+    {
+        return $this->taggedTables;
+    }
+
+    /**
      * @return Table[]
      */
     public function getTables(): array
@@ -47,18 +57,6 @@ class Schema
                     $table->setAlias($item['@alias']);
                 }
 
-                if (isset($item['@tags'])) {
-                    $tagNames = explode(',', $item['@tags']);
-                    foreach ($tagNames as $tagName) {
-                        $tagName = trim($tagName);
-                        if ($tagName) {
-                            $tag = new Tag();
-                            $tag->setName($tagName);
-                            $table->addTag($tag);
-                        }
-                    }
-                }
-
                 $table->setProperties($this->getCustomProperties($item));
                 $this->tables[$tableName] = $table;
 
@@ -68,6 +66,22 @@ class Schema
 
             if (!empty ($item['column'])) {
                 $this->tables[$tableName]->addColumns($item['column']);
+            }
+
+            if (isset($item['@tags'])) {
+                $tagNames = explode(',', $item['@tags']);
+                foreach ($tagNames as $tagName) {
+                    $tagName = trim($tagName);
+                    if ($tagName) {
+                        $tag = new Tag();
+                        $tag->setName($tagName);
+                        $this->tables[$tableName]->addTag($tag);
+
+                        if (!isset($this->taggedTables[$tagName][$tableName])) {
+                            $this->taggedTables[$tagName][$tableName] = $this->tables[$tableName];
+                        }
+                    }
+                }
             }
         }
     }
