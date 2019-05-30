@@ -5,7 +5,7 @@
         Table: {{ table.name }}</h2>
     {% for tag in table.tags %}
         <span class="badge badge-info">{{ tag.name }}</span>
-    {% endfor %}<br />
+    {% endfor %}<br/>
     <h4>Columns</h4>
     <input id="searchInput" autofocus class="form-control" style="margin-top: 10px; margin-bottom: 10px;" placeholder="Search... "/>
 
@@ -24,11 +24,11 @@
             <tr>
                 <td>
                     <a id="field_{{ table.name }}.{{ column.name }}"></a>
-                    <code class="badge badge-secondary">{{ column.name }}</code><br />
+                    <code class="badge badge-secondary">{{ column.name }}</code><br/>
                     {% if column.alias %}
-                    <code class="badge badge-primary">{{ column.alias }}</code>
+                        <code class="badge badge-primary">{{ column.alias }}</code>
                     {% else %}
-                    <code class="badge badge-warning">NO ALIAS</code>
+                        <code class="badge badge-warning">NO ALIAS</code>
                     {% endif %}
                 </td>
                 <td>
@@ -38,6 +38,9 @@
                     {% if column.doc %}
                         <i>{{ column.doc }}</i><br/>
                     {% endif %}
+                    {% for tag in column.tags %}
+                        <span class="badge badge-info">{{ tag.name }}</span>
+                    {% endfor %}
                 </td>
                 <td>
                     {{ column.type }}

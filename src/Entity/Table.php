@@ -108,6 +108,18 @@ class Table
                     $newColumn->setUnique($column['@unique']);
                 }
 
+                if (isset($column['@tags'])) {
+                    $tagNames = explode(',', $column['@tags']);
+                    foreach ($tagNames as $tagName) {
+                        $tagName = trim($tagName);
+                        if (!empty($tagName)) {
+                            $tag = new Tag();
+                            $tag->setName($tagName);
+                            $newColumn->addTag($tag);
+                        }
+                    }
+                }
+
                 $this->columns[$name] = $newColumn;
             }
         }
@@ -119,14 +131,6 @@ class Table
     public function getColumns(): array
     {
         return $this->columns;
-    }
-
-
-    public function addTags(array $tags): void
-    {
-        foreach ($tags as $tag) {
-            $this->addTag($tag);
-        }
     }
 
     public function addTag(Tag $tag): void
@@ -182,26 +186,28 @@ class Table
         foreach ($this->columns as $c) {
             if (!$c->isGenerated()) {
                 if ($c->getAlias()) {
-                    $aliasTotal ++;
+                    $aliasTotal++;
                 }
                 $total++;
             }
         }
-        if ($total==0) {
+        if ($total == 0) {
             return 100;
         }
-        return round(100/$total * $aliasTotal);
+
+        return round(100 / $total * $aliasTotal);
     }
 
     public function getColumnAliasPercentageClass()
     {
         $percentage = $this->getColumnAliasPercentage();
-        if ($percentage==0) {
+        if ($percentage == 0) {
             return 'secondary';
         }
-        if ($percentage==100) {
+        if ($percentage == 100) {
             return 'success';
         }
+
         return 'warning';
     }
 }

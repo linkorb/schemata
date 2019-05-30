@@ -42,11 +42,13 @@ class Schema
             if (!array_key_exists($tableName, $this->tables)) {
                 $table = new Table();
                 $table->setName($tableName);
+
                 if (isset($item['@alias'])) {
                     $table->setAlias($item['@alias']);
                 }
+
                 if (isset($item['@tags'])) {
-                    $tagNames = explode(",", $item['@tags']);
+                    $tagNames = explode(',', $item['@tags']);
                     foreach ($tagNames as $tagName) {
                         $tagName = trim($tagName);
                         if ($tagName) {
@@ -54,10 +56,9 @@ class Schema
                             $tag->setName($tagName);
                             $table->addTag($tag);
                         }
-                        
                     }
                 }
-                
+
                 $table->setProperties($this->getCustomProperties($item));
                 $this->tables[$tableName] = $table;
 
@@ -119,10 +120,10 @@ class Schema
     {
         return [
             [
-                '@name'   => 'id',
-                '@alias'  => 'id',
-                '@type'   => 'int',
-                '@unique' => true,
+                '@name'      => 'id',
+                '@alias'     => 'id',
+                '@type'      => 'int',
+                '@unique'    => true,
                 '@generated' => true,
             ],
         ];
@@ -135,53 +136,53 @@ class Schema
     {
         return [
             [
-                '@name'   => 'r_uuid',
-                '@type'   => 'varchar(40)',
-                '@label'  => 'UUID',
-                '@unique' => true,
-                '@alias' => 'uniqueId',
+                '@name'      => 'r_uuid',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'UUID',
+                '@unique'    => true,
+                '@alias'     => 'uniqueId',
                 '@generated' => true,
             ],
             [
-                '@name'  => 'r_c_s',
-                '@type'  => 'int',
-                '@label' => 'Create time',
-                '@alias' => 'createdAt',
+                '@name'      => 'r_c_s',
+                '@type'      => 'int',
+                '@label'     => 'Create time',
+                '@alias'     => 'createdAt',
                 '@generated' => true,
             ],
             [
-                '@name'  => 'r_u_s',
-                '@type'  => 'int',
-                '@label' => 'Update time',
-                '@alias' => 'updatedAt',
+                '@name'      => 'r_u_s',
+                '@type'      => 'int',
+                '@label'     => 'Update time',
+                '@alias'     => 'updatedAt',
                 '@generated' => true,
             ],
             [
-                '@name'  => 'r_d_s',
-                '@type'  => 'int',
-                '@label' => 'Delete time',
-                '@alias' => 'deletedAt',
+                '@name'      => 'r_d_s',
+                '@type'      => 'int',
+                '@label'     => 'Delete time',
+                '@alias'     => 'deletedAt',
                 '@generated' => true,
             ],
             [
-                '@name'  => 'r_c_u',
-                '@type'  => 'varchar(40)',
-                '@label' => 'Creator UUID',
-                '@alias' => 'createdBy',
+                '@name'      => 'r_c_u',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'Creator UUID',
+                '@alias'     => 'createdBy',
                 '@generated' => true,
             ],
             [
-                '@name'  => 'r_u_u',
-                '@type'  => 'varchar(40)',
-                '@label' => 'Updater UUID',
-                '@alias' => 'updatedBy',
+                '@name'      => 'r_u_u',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'Updater UUID',
+                '@alias'     => 'updatedBy',
                 '@generated' => true,
             ],
             [
-                '@name'  => 'r_d_u',
-                '@type'  => 'varchar(40)',
-                '@label' => 'Deleter UUID',
-                '@alias' => 'deletedBy',
+                '@name'      => 'r_d_u',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'Deleter UUID',
+                '@alias'     => 'deletedBy',
                 '@generated' => true,
             ],
         ];

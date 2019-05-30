@@ -37,6 +37,9 @@ class Column
     /** @var array */
     private $properties = [];
 
+    /** @var Tag[] */
+    private $tags = [];
+
     /**
      * @return string
      */
@@ -244,5 +247,18 @@ class Column
         $this->generated = $generated;
 
         return $this;
+    }
+
+    public function addTag(Tag $tag): void
+    {
+        $this->tags[$tag->getName()] = $tag;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    public function getTags(): array
+    {
+        return $this->tags;
     }
 }
