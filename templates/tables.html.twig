@@ -9,7 +9,14 @@
             style="margin-top: 10px; margin-bottom: 10px;"
             placeholder="Search... "
     />
-
+    {% for tagName in tagsAll %}
+        <a
+                href="tables__tag_{{ tagName }}.html"
+                class="badge badge-info"
+                style="margin: .2em 0 .2em 0"
+        >{{ tagName }}</a>
+    {% endfor %}
+    <br/><br/>
     <table class="table">
         <thead>
         <tr>
@@ -35,7 +42,11 @@
                 </td>
                 <td>
                     {% for tag in table.tags %}
-                        <a href="tables__tag_{{ tag.name }}.html"><span class="badge badge-info">{{ tag.name }}</span></a>
+                        <a
+                                href="tables__tag_{{ tag.name }}.html"
+                                class="badge badge-info"
+                                style="margin: .2em 0 .2em 0"
+                        >{{ tag.name }}</a>
                     {% endfor %}
                 </td>
                 <td style="text-align: center;">

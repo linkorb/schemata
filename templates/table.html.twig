@@ -4,8 +4,13 @@
     <h2><a id="table_{{ table.name }}"></a>
         Table: {{ table.name }}</h2>
     {% for tag in table.tags %}
-        <a href="tables__tag_{{ tag.name }}.html"><span class="badge badge-info">{{ tag.name }}</span></a>
-    {% endfor %}<br/>
+        <a
+                href="tables__tag_{{ tag.name }}.html"
+                class="badge badge-info"
+                style="margin: .2em 0 .2em 0"
+        >{{ tag.name }}</a>
+    {% endfor %}
+    <br/>
     <h4>Columns</h4>
     <input
             id="searchInput"

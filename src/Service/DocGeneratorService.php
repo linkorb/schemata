@@ -26,9 +26,15 @@ class DocGeneratorService extends AbstractGeneratorService
         $tables = $this->schema->getTables();
         ksort($tables);
 
-        file_put_contents($this->pathOutput . '/tables.html', $twig->render('tables.html.twig', [
-            'tables' => $tables,
-        ]));
+        $tagsAll = $this->schema->getTagsAll();
+        ksort($tagsAll);
+
+        file_put_contents(
+            $this->pathOutput . '/tables.html',
+            $twig->render('tables.html.twig', [
+                'tables'  => $tables,
+                'tagsAll' => $tagsAll,
+            ]));
 
         foreach ($tables as $table) {
             file_put_contents(

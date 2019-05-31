@@ -24,6 +24,11 @@ class Schema
         return $this->taggedTables;
     }
 
+    public function getTagsAll(): array
+    {
+        return array_keys($this->taggedTables);
+    }
+
     /**
      * @return Table[]
      */
