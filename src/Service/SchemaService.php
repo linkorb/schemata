@@ -167,9 +167,16 @@ class SchemaService
 
                 // Add default columns
                 $defaultColumns = $this->prepareColumns($this->getDefaultColumns());
-                $table->addColumns($defaultColumns);
+                $table->addColumns($defaultColumns['columns']);
 
-                $this->validateTable($table);
+                $errors = $this->validateTable($table);
+
+                if (
+                    true === $defaultColumns['hasErrors'] ||
+                    0 < $errors->count()
+                ) {
+                    $this->schema->addTableWithIssues($table);
+                }
 
                 $this->schema->setTable($table);
             } else {
@@ -178,7 +185,11 @@ class SchemaService
 
             if (!empty ($item['column'])) {
                 $newColumns = $this->prepareColumns($item['column']);
-                $table->addColumns($newColumns);
+                $table->addColumns($newColumns['columns']);
+
+                if (true === $newColumns['hasErrors']) {
+                    $this->schema->addTableWithIssues($table);
+                }
             }
 
             if (isset($item['@tags'])) {
@@ -200,11 +211,14 @@ class SchemaService
 
     /**
      * @param $columns
-     * @return Column[]
+     * @return array
      */
     private function prepareColumns($columns): array
     {
-        $newColumns = [];
+        $res = [
+            'columns' => [],
+            'hasErrors'  => false,
+        ];
 
         foreach ($columns as $column) {
             $name = $column['@name'];
@@ -263,12 +277,16 @@ class SchemaService
                 }
             }
 
-            $this->validateColumn($newColumn);
+            $errors = $this->validateColumn($newColumn);
 
-            $newColumns[] = $newColumn;
+            if (false === $res['hasErrors'] && 0 < $errors->count()) {
+                $res['hasErrors'] = true;
+            }
+
+            $res['columns'][] = $newColumn;
         }
 
-        return $newColumns;
+        return $res;
     }
 
     /**
@@ -372,7 +390,7 @@ class SchemaService
         return $properties;
     }
 
-    private function validateTable(Table $table): void
+    private function validateTable(Table $table): ConstraintViolationList
     {
         /** @var ConstraintViolationList $errors */
         $errors = $this->validator->validate($table);
@@ -384,9 +402,11 @@ class SchemaService
                 $table->addViolation($violationItem);
             }
         }
+
+        return $errors;
     }
 
-    private function validateColumn(Column $column): void
+    private function validateColumn(Column $column): ConstraintViolationList
     {
         /** @var ConstraintViolationList $errors */
         $errors = $this->validator->validate($column);
@@ -398,6 +418,8 @@ class SchemaService
                 $column->addViolation($violationItem);
             }
         }
+
+        return $errors;
     }
 
     private function convertCodelistToTable(Codelist $codelist): Table
@@ -406,7 +428,11 @@ class SchemaService
         $table = new Table();
         $table->setName($name);
         $columns = $this->prepareColumns($this->getCodelistColumns());
-        $table->addColumns($columns);
+        $table->addColumns($columns['columns']);
+
+        if (true === $columns['hasErrors']) {
+            $this->schema->addTableWithIssues($table);
+        }
 
         return $table;
     }

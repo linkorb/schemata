@@ -2,7 +2,6 @@
 
 namespace LinkORB\Schemata\Service;
 
-use LinkORB\Schemata\Entity\Table;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -105,29 +104,10 @@ class DocGeneratorService extends AbstractGeneratorService
 
     private function generateValidationIssues(Environment $twig): void
     {
-        $tablesWithIssues = [];
-
-        /** @var Table[] $tables */
-        $tables = $this->schema->getTables();
-
-        foreach ($tables as $table) {
-            if (0 < count($table->getViolations())) {
-                $tablesWithIssues[$table->getName()] = $table;
-                continue;
-            }
-
-            foreach ($table->getColumns() as $column) {
-                if (0 < count($column->getViolations())) {
-                    $tablesWithIssues[$table->getName()] = $table;
-                    continue 2;
-                }
-            }
-        }
-
         file_put_contents(
             $this->pathOutput . '/validation-issues.html',
             $twig->render('validation-issues.html.twig', [
-                'tables' => $tablesWithIssues,
+                'tables' => $this->schema->getTablesWithIssues(),
             ]));
     }
 }

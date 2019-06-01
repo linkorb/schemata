@@ -21,6 +21,8 @@ class Schema
      */
     private $taggedTables = [];
 
+    private $tablesWithIssues = [];
+
     public function getTaggedTables(): array
     {
         return $this->taggedTables;
@@ -84,5 +86,18 @@ class Schema
     public function getCodelists(): array
     {
         return $this->codelists;
+    }
+
+    public function addTableWithIssues(Table $table): void
+    {
+        $this->tablesWithIssues[$table->getName()] = $table;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTablesWithIssues(): array
+    {
+        return $this->tablesWithIssues;
     }
 }
