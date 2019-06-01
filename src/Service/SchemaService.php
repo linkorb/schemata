@@ -3,6 +3,9 @@
 namespace LinkORB\Schemata\Service;
 
 use LinkORB\Schemata\Entity\Codelist;
+use LinkORB\Schemata\Entity\Column;
+use LinkORB\Schemata\Entity\Table;
+use LinkORB\Schemata\Entity\Tag;
 use LinkORB\Schemata\Entity\XmlPackage;
 use LinkORB\Schemata\Entity\Schema;
 use RuntimeException;
@@ -11,7 +14,9 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SchemaService
 {
@@ -31,19 +36,24 @@ class SchemaService
      */
     private $schema;
 
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
     public function __construct($pathSchema, $flag = null)
     {
         $this->pathSchema = $pathSchema;
         $this->flag = $flag;
+
+        $this->validator = Validation::createValidatorBuilder()
+            ->addMethodMapping('loadValidatorMetadata')
+            ->getValidator();
     }
 
     public function parseSchema(): void
     {
-        $validator = Validation::createValidatorBuilder()
-            ->addMethodMapping('loadValidatorMetadata')
-            ->getValidator();
-
-        $this->schema = new Schema($validator);
+        $this->schema = new Schema();
 
         $this->parseXml();
         $this->parseCsv();
@@ -72,7 +82,7 @@ class SchemaService
             $this->addTables($package->getTables());
         }
 
-        $this->schema->hydrateTables($this->tablesArray);
+        $this->hydrateTables();
     }
 
     private function parseCsv(): void
@@ -103,7 +113,8 @@ class SchemaService
             $codelist->setItems($codes);
 
             if (self::CODELISTS_AS_TABLES === $this->flag) {
-                $this->schema->addCodelistAsTable($codelist);
+                $table = $this->convertCodelistToTable($codelist);
+                $this->schema->addCodelistAsTable($table);
             } else {
                 $this->schema->addCodelist($codelist);
             }
@@ -126,5 +137,277 @@ class SchemaService
         }
 
         return $this->schema;
+    }
+
+    private function hydrateTables(): void
+    {
+        foreach ($this->tablesArray as $item) {
+            $tableName = $item['@name'];
+
+            if (!isset($item['column'])) {
+                $item['column'] = [];
+            } else if (!isset($item['column'][0])) {
+                $item['column'] = [$item['column']];
+            }
+
+            if (isset($item['@extended']) && 'true' === $item['@extended']) {
+                /** @noinspection SlowArrayOperationsInLoopInspection */
+                $item['column'] = array_merge($item['column'], $this->getExtendedColumns());
+            }
+
+            if (!array_key_exists($tableName, $this->schema->getTables())) {
+                $table = new Table();
+                $table->setName($tableName);
+
+                if (isset($item['@alias'])) {
+                    $table->setAlias($item['@alias']);
+                }
+
+                $table->setProperties($this->getCustomProperties($item));
+
+                // Add default columns
+                $defaultColumns = $this->prepareColumns($this->getDefaultColumns());
+                $table->addColumns($defaultColumns);
+
+                $this->validateTable($table);
+
+                $this->schema->setTable($table);
+            } else {
+                $table = $this->schema->getTable($tableName);
+            }
+
+            if (!empty ($item['column'])) {
+                $newColumns = $this->prepareColumns($item['column']);
+                $table->addColumns($newColumns);
+            }
+
+            if (isset($item['@tags'])) {
+                $tagNames = explode(',', $item['@tags']);
+                foreach ($tagNames as $tagName) {
+                    $tagName = trim($tagName);
+                    if ($tagName) {
+                        $tag = new Tag();
+                        $tag->setName($tagName);
+                        $table->addTag($tag);
+                        if (!isset($this->schema->getTaggedTables()[$tag->getName()][$tableName])) {
+                            $this->schema->addTaggedTable($tag, $table);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $columns
+     * @return Column[]
+     */
+    private function prepareColumns($columns): array
+    {
+        $newColumns = [];
+
+        foreach ($columns as $column) {
+            $name = $column['@name'];
+
+            $newColumn = new Column();
+
+            $newColumn->setName($name);
+            $newColumn->setProperties($this->getCustomProperties($column));
+
+            if (isset($column['@type'])) {
+                $newColumn->setType($column['@type']);
+            }
+
+            if (isset($column['@label'])) {
+                $newColumn->setLabel($column['@label']);
+            }
+
+            if (isset($column['@alias'])) {
+                $newColumn->setAlias($column['@alias']);
+            }
+            if (isset($column['@generated'])) {
+                $newColumn->setGenerated($column['@generated']);
+            }
+
+            if (isset($column['@doc'])) {
+                $newColumn->setDoc($column['@doc']);
+            }
+
+            if (isset($column['@foreignkey'])) {
+                $keys = explode('.', $column['@foreignkey']);
+                if (2 === count($keys)) {
+                    $newColumn->setForeignTable($keys[0]);
+                }
+                $newColumn->setForeignKey($column['@foreignkey']);
+            }
+
+            if (isset($column['@codelist'])) {
+                $newColumn->setCodelist($column['@codelist']);
+                $newColumn->setType('codelist');
+                $newColumn->setForeignTable('codelist__' . $newColumn->getCodelist());
+            }
+
+            if (isset($column['@unique']) && is_bool($column['@unique'])) {
+                $newColumn->setUnique($column['@unique']);
+            }
+
+            if (isset($column['@tags'])) {
+                $tagNames = explode(',', $column['@tags']);
+                foreach ($tagNames as $tagName) {
+                    $tagName = trim($tagName);
+                    if (!empty($tagName)) {
+                        $tag = new Tag();
+                        $tag->setName($tagName);
+                        $newColumn->addTag($tag);
+                    }
+                }
+            }
+
+            $this->validateColumn($newColumn);
+
+            $newColumns[] = $newColumn;
+        }
+
+        return $newColumns;
+    }
+
+    /**
+     * @return array
+     */
+    private function getExtendedColumns(): array
+    {
+        return [
+            [
+                '@name'      => 'r_uuid',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'UUID',
+                '@unique'    => true,
+                '@alias'     => 'uniqueId',
+                '@generated' => true,
+            ],
+            [
+                '@name'      => 'r_c_s',
+                '@type'      => 'int',
+                '@label'     => 'Create time',
+                '@alias'     => 'createdAt',
+                '@generated' => true,
+            ],
+            [
+                '@name'      => 'r_u_s',
+                '@type'      => 'int',
+                '@label'     => 'Update time',
+                '@alias'     => 'updatedAt',
+                '@generated' => true,
+            ],
+            [
+                '@name'      => 'r_d_s',
+                '@type'      => 'int',
+                '@label'     => 'Delete time',
+                '@alias'     => 'deletedAt',
+                '@generated' => true,
+            ],
+            [
+                '@name'      => 'r_c_u',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'Creator UUID',
+                '@alias'     => 'createdBy',
+                '@generated' => true,
+            ],
+            [
+                '@name'      => 'r_u_u',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'Updater UUID',
+                '@alias'     => 'updatedBy',
+                '@generated' => true,
+            ],
+            [
+                '@name'      => 'r_d_u',
+                '@type'      => 'varchar(40)',
+                '@label'     => 'Deleter UUID',
+                '@alias'     => 'deletedBy',
+                '@generated' => true,
+            ],
+        ];
+    }
+
+    private function getDefaultColumns(): array
+    {
+        return [
+            [
+                '@name'      => 'id',
+                '@alias'     => 'id',
+                '@type'      => 'int',
+                '@unique'    => true,
+                '@generated' => true,
+            ],
+        ];
+    }
+
+    private function getCodelistColumns(): array
+    {
+        return [
+            [
+                '@name'   => 'code',
+                '@type'   => 'string',
+                '@unique' => true,
+            ],
+            [
+                '@name' => 'label',
+                '@type' => 'string',
+            ],
+        ];
+    }
+
+    private function getCustomProperties($item): array
+    {
+        $properties = [];
+
+        foreach ($item as $key => $value) {
+            if (0 === strpos($key, '@p:')) {
+                $property = str_replace('@p:', '', $key);
+                $properties[$property] = $value;
+            }
+        }
+
+        return $properties;
+    }
+
+    private function validateTable(Table $table): void
+    {
+        /** @var ConstraintViolationList $errors */
+        $errors = $this->validator->validate($table);
+
+        if (0 < $errors->count()) {
+            $iterator = $errors->getIterator();
+
+            foreach ($iterator as $violationItem) {
+                $table->addViolation($violationItem);
+            }
+        }
+    }
+
+    private function validateColumn(Column $column): void
+    {
+        /** @var ConstraintViolationList $errors */
+        $errors = $this->validator->validate($column);
+
+        if (0 < $errors->count()) {
+            $iterator = $errors->getIterator();
+
+            foreach ($iterator as $violationItem) {
+                $column->addViolation($violationItem);
+            }
+        }
+    }
+
+    private function convertCodelistToTable(Codelist $codelist): Table
+    {
+        $name = 'codelist__' . $codelist->getName();
+        $table = new Table();
+        $table->setName($name);
+        $columns = $this->prepareColumns($this->getCodelistColumns());
+        $table->addColumns($columns);
+
+        return $table;
     }
 }

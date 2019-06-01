@@ -199,7 +199,7 @@ class Column
     }
 
     /**
-     * @param string $name
+     * @param string $alias
      * @return Column
      */
     public function setAlias(string $alias): Column
@@ -256,7 +256,7 @@ class Column
     }
 
     /**
-     * @param bool $unique
+     * @param bool $generated
      * @return Column
      */
     public function setGenerated(bool $generated): Column
