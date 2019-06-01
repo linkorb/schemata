@@ -2,6 +2,11 @@
 
 namespace LinkORB\Schemata\Entity;
 
+use LinkORB\Schemata\Validators\CamelCaseLower;
+use LinkORB\Schemata\Validators\SQLIdentifier;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+
 class Column
 {
     /** @var string */
@@ -39,6 +44,18 @@ class Column
 
     /** @var Tag[] */
     private $tags = [];
+
+    /**
+     * @var ConstraintViolation[]
+     */
+    private $violations = [];
+
+    public static function loadValidatorMetadata(ClassMetadata $metadata): void
+    {
+        $metadata
+            ->addPropertyConstraint('name', new SQLIdentifier())
+            ->addPropertyConstraint('alias', new CamelCaseLower());
+    }
 
     /**
      * @return string
@@ -260,5 +277,24 @@ class Column
     public function getTags(): array
     {
         return $this->tags;
+    }
+
+    /**
+     * @return array
+     */
+    public function getViolations(): array
+    {
+        return $this->violations;
+    }
+
+    /**
+     * @param ConstraintViolation $violation
+     * @return Column
+     */
+    public function addViolation(ConstraintViolation $violation): Column
+    {
+        $this->violations[] = $violation;
+
+        return $this;
     }
 }

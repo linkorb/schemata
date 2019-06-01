@@ -1,0 +1,51 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2>Validation Issues</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Table Issues</th>
+            <th>Column Issues</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        {% for table in tables %}
+            <tr>
+                <td>
+                    <a href="./table__{{ table.name }}.html">
+                        <code class="badge badge-secondary">
+                            {{ table.name }}
+                        </code>
+                    </a>
+                </td>
+                <td>
+                    {% for tableViolation in table.violations %}
+                        <a href="./table__{{ table.name }}.html">
+                            <code class="badge badge-danger" style="margin: .2em 0 .2em 0">
+                                <b>"{{ tableViolation.propertyPath }}":</b> {{ tableViolation.message }}
+                            </code>
+                        </a>
+                        <br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for column in table.columns %}
+                        {% for columnViolation in column.violations %}
+                            <a href="./table__{{ table.name }}.html#field_{{ table.name }}.{{ column.name }}">
+                                <code class="badge badge-danger" style="margin: .2em 0 .2em 0">
+                                    Column: <b>{{ column.name }}</b>,
+                                    <b>"{{ columnViolation.propertyPath }}":</b> {{ columnViolation.message }}
+                                </code>
+                            </a>
+                            <br/>
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

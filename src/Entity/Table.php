@@ -2,6 +2,13 @@
 
 namespace LinkORB\Schemata\Entity;
 
+use LinkORB\Schemata\Validators\CamelCaseUpper;
+use LinkORB\Schemata\Validators\SQLIdentifier;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 class Table
 {
     /** @var string */
@@ -21,6 +28,18 @@ class Table
 
     /** @var array */
     private $properties = [];
+
+    /**
+     * @var ConstraintViolation[]
+     */
+    private $violations = [];
+
+    public static function loadValidatorMetadata(ClassMetadata $metadata): void
+    {
+        $metadata
+            ->addPropertyConstraint('name', new SQLIdentifier())
+            ->addPropertyConstraint('alias', new CamelCaseUpper());
+    }
 
     /**
      * @return string
@@ -60,7 +79,7 @@ class Table
         return $this;
     }
 
-    public function addColumns(array $columns): void
+    public function addColumns(array $columns, ValidatorInterface $validator): void
     {
         foreach ($columns as $column) {
             $name = $column['@name'];
@@ -117,6 +136,17 @@ class Table
                             $tag->setName($tagName);
                             $newColumn->addTag($tag);
                         }
+                    }
+                }
+
+                /** @var ConstraintViolationList $errors */
+                $errors = $validator->validate($newColumn);
+
+                if (0 < $errors->count()) {
+                    $iterator = $errors->getIterator();
+
+                    foreach ($iterator as $violationItem) {
+                        $newColumn->addViolation($violationItem);
                     }
                 }
 
@@ -191,23 +221,42 @@ class Table
                 $total++;
             }
         }
-        if ($total == 0) {
+        if ($total === 0) {
             return 100;
         }
 
         return round(100 / $total * $aliasTotal);
     }
 
-    public function getColumnAliasPercentageClass()
+    public function getColumnAliasPercentageClass(): string
     {
         $percentage = $this->getColumnAliasPercentage();
-        if ($percentage == 0) {
+        if ($percentage === 0) {
             return 'secondary';
         }
-        if ($percentage == 100) {
+        if ($percentage === 100) {
             return 'success';
         }
 
         return 'warning';
+    }
+
+    /**
+     * @return array
+     */
+    public function getViolations(): array
+    {
+        return $this->violations;
+    }
+
+    /**
+     * @param ConstraintViolation $violation
+     * @return Table
+     */
+    public function addViolation(ConstraintViolation $violation): Table
+    {
+        $this->violations[] = $violation;
+
+        return $this;
     }
 }

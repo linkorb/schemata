@@ -2,6 +2,9 @@
 
 namespace LinkORB\Schemata\Entity;
 
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 class Schema
 {
     /**
@@ -18,6 +21,16 @@ class Schema
      * @var array
      */
     private $taggedTables = [];
+
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    public function __construct(ValidatorInterface $validator)
+    {
+        $this->validator = $validator;
+    }
 
     public function getTaggedTables(): array
     {
@@ -66,11 +79,22 @@ class Schema
                 $this->tables[$tableName] = $table;
 
                 // Add default columns
-                $this->tables[$tableName]->addColumns($this->getDefaultColumns());
+                $this->tables[$tableName]->addColumns($this->getDefaultColumns(), $this->validator);
+
+                /** @var ConstraintViolationList $errors */
+                $errors = $this->validator->validate($table);
+
+                if (0 < $errors->count()) {
+                    $iterator = $errors->getIterator();
+
+                    foreach ($iterator as $violationItem) {
+                        $table->addViolation($violationItem);
+                    }
+                }
             }
 
             if (!empty ($item['column'])) {
-                $this->tables[$tableName]->addColumns($item['column']);
+                $this->tables[$tableName]->addColumns($item['column'], $this->validator);
             }
 
             if (isset($item['@tags'])) {
@@ -124,7 +148,7 @@ class Schema
             ],
         ];
 
-        $this->tables[$name]->addColumns($columns);
+        $this->tables[$name]->addColumns($columns, $this->validator);
     }
 
     /**

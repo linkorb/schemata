@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Validator\Validation;
 
 class SchemaService
 {
@@ -38,7 +39,11 @@ class SchemaService
 
     public function parseSchema(): void
     {
-        $this->schema = new Schema();
+        $validator = Validation::createValidatorBuilder()
+            ->addMethodMapping('loadValidatorMetadata')
+            ->getValidator();
+
+        $this->schema = new Schema($validator);
 
         $this->parseXml();
         $this->parseCsv();

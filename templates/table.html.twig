@@ -3,13 +3,20 @@
 {% block content %}
     <h2><a id="table_{{ table.name }}"></a>
         Table: {{ table.name }}</h2>
-    {% for tag in table.tags %}
-        <a
-                href="tables__tag_{{ tag.name }}.html"
-                class="badge badge-info"
-                style="margin: .2em 0 .2em 0"
-        >{{ tag.name }}</a>
-    {% endfor %}
+    <div>
+        {% for tag in table.tags %}
+            <a
+                    href="tables__tag_{{ tag.name }}.html"
+                    class="badge badge-info"
+                    style="margin: .2em 0 .2em 0"
+            >{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+    <div>
+        {% for violation in table.violations %}
+            <span class="badge badge-danger"><b>"{{ violation.propertyPath }}":</b> {{ violation.message }}</span>
+        {% endfor %}
+    </div>
     <br/>
     <h4>Columns</h4>
     <input
@@ -41,6 +48,11 @@
                     {% else %}
                         <code class="badge badge-warning">NO ALIAS</code>
                     {% endif %}
+                    <br/>
+                    {% for violation in column.violations %}
+                        <code class="badge badge-danger" style="margin: .2em 0 .2em 0"><b>"{{ violation.propertyPath }}":</b> {{ violation.message }}</code>
+                        <br/>
+                    {% endfor %}
                 </td>
                 <td>
                 </td>

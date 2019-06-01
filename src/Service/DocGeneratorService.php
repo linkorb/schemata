@@ -2,6 +2,7 @@
 
 namespace LinkORB\Schemata\Service;
 
+use LinkORB\Schemata\Entity\Table;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -21,8 +22,29 @@ class DocGeneratorService extends AbstractGeneratorService
 
         $twig = new Environment($loader);
 
-        file_put_contents($this->pathOutput . '/index.html', $twig->render('index.html.twig'));
+        $this->generateIndex($twig);
 
+        $this->generateTables($twig);
+
+        $this->generateCodelists($twig);
+
+        $this->generateTaggedTables($twig);
+
+        $this->generateValidationIssues($twig);
+    }
+
+    protected function deleteObsoleteFiles(bool $bundle = false): void
+    {
+        array_map('unlink', glob("$this->pathOutput/*.*"));
+    }
+
+    private function generateIndex(Environment $twig): void
+    {
+        file_put_contents($this->pathOutput . '/index.html', $twig->render('index.html.twig'));
+    }
+
+    private function generateTables(Environment $twig): void
+    {
         $tables = $this->schema->getTables();
         ksort($tables);
 
@@ -44,7 +66,10 @@ class DocGeneratorService extends AbstractGeneratorService
                 ])
             );
         }
+    }
 
+    private function generateCodelists(Environment $twig): void
+    {
         $codelists = $this->schema->getCodelists();
         ksort($codelists);
 
@@ -64,7 +89,10 @@ class DocGeneratorService extends AbstractGeneratorService
                 ])
             );
         }
+    }
 
+    private function generateTaggedTables(Environment $twig): void
+    {
         foreach ($this->schema->getTaggedTables() as $tagName => $taggedTables) {
             file_put_contents(
                 $this->pathOutput . '/tables__tag_' . $tagName . '.html',
@@ -75,8 +103,31 @@ class DocGeneratorService extends AbstractGeneratorService
         }
     }
 
-    protected function deleteObsoleteFiles(bool $bundle = false): void
+    private function generateValidationIssues(Environment $twig): void
     {
-        array_map('unlink', glob("$this->pathOutput/*.*"));
+        $tablesWithIssues = [];
+
+        /** @var Table[] $tables */
+        $tables = $this->schema->getTables();
+
+        foreach ($tables as $table) {
+            if (0 < count($table->getViolations())) {
+                $tablesWithIssues[$table->getName()] = $table;
+                continue;
+            }
+
+            foreach ($table->getColumns() as $column) {
+                if (0 < count($column->getViolations())) {
+                    $tablesWithIssues[$table->getName()] = $table;
+                    continue 2;
+                }
+            }
+        }
+
+        file_put_contents(
+            $this->pathOutput . '/validation-issues.html',
+            $twig->render('validation-issues.html.twig', [
+                'tables' => $tablesWithIssues,
+            ]));
     }
 }
