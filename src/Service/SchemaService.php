@@ -99,9 +99,8 @@ class SchemaService
         );
 
         foreach ($finder as $file) {
-            $contents = $file->getContents();
-            $contents = str_replace([";\n", "\n\n"], "\n", $contents);
-            $contents = preg_replace('/^#.*\n/', '', $contents);
+            $contents = $this->cleanUpCsvFile($file->getContents());
+
             $context = [
                 CsvEncoder::DELIMITER_KEY => ';',
             ];
@@ -216,8 +215,8 @@ class SchemaService
     private function prepareColumns($columns): array
     {
         $res = [
-            'columns' => [],
-            'hasErrors'  => false,
+            'columns'   => [],
+            'hasErrors' => false,
         ];
 
         foreach ($columns as $column) {
@@ -435,5 +434,14 @@ class SchemaService
         }
 
         return $table;
+    }
+
+    private function cleanUpCsvFile($contents)
+    {
+        $contents = str_replace(";\n", "\n", $contents);
+        $contents = preg_replace('/^#.*\n/', '', $contents);
+        $contents = preg_replace('/(\n){2,}/', "\n", $contents);
+
+        return $contents;
     }
 }

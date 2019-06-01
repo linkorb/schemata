@@ -178,4 +178,9 @@ class Table
 
         return $this;
     }
+
+    public function cleanUpViolations(): void
+    {
+        $this->violations = [];
+    }
 }

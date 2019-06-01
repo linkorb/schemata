@@ -100,4 +100,18 @@ class Schema
     {
         return $this->tablesWithIssues;
     }
+
+    public function cleanUpForDiff(): void
+    {
+        $this->taggedTables = [];
+
+        $this->tablesWithIssues = [];
+
+        foreach ($this->tables as $table) {
+            $table->cleanUpViolations();
+            foreach ($table->getColumns() as $column) {
+                $column->cleanUpViolations();
+            }
+        }
+    }
 }

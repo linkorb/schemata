@@ -297,4 +297,9 @@ class Column
 
         return $this;
     }
+
+    public function cleanUpViolations(): void
+    {
+        $this->violations = [];
+    }
 }

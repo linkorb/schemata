@@ -4,8 +4,43 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb2e51de68c10f3a44ffa9703ba7a6e0",
+    "content-hash": "60c7d76d638e496844315b5b6e79fb2d",
     "packages": [
+        {
+            "name": "pitpit/php-diff",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pitpit/php-diff.git",
+                "reference": "49690a8cc766b6aeb794a4f6d1d99d79e24997ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pitpit/php-diff/zipball/49690a8cc766b6aeb794a4f6d1d99d79e24997ca",
+                "reference": "49690a8cc766b6aeb794a4f6d1d99d79e24997ca",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Pitpit\\Component\\Diff": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Compare variables (array, object, string...) easily",
+            "time": "2015-02-24T20:02:37+00:00"
+        },
         {
             "name": "symfony/console",
             "version": "v4.2.4",
@@ -796,7 +831,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "pitpit/php-diff": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
