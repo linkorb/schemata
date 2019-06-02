@@ -1,8 +1,30 @@
 #!/usr/bin/env php
-
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+$autoloadName = 'autoload.php';
+
+$autoloadPaths = [
+    // local
+    __DIR__ . '/../vendor/' . $autoloadName,
+    // installed by Composer
+    __DIR__ . '/../../../../vendor/' . $autoloadName,
+];
+
+$isAutoloadFound = false;
+foreach ($autoloadPaths as $autoloadPath) {
+    if (file_exists($autoloadPath)) {
+        require_once $autoloadPath;
+        $isAutoloadFound = true;
+        break;
+    }
+}
+
+if ($isAutoloadFound === false) {
+    throw new RuntimeException(sprintf(
+        'Unable to find "' . $autoloadName . '" in "%s" paths.',
+        implode('", "', $autoloadPaths)
+    ));
+}
 
 use LinkORB\Schemata\Command\GenerateContextSchemaCommand;
 use LinkORB\Schemata\Command\GenerateGraphQLSchemaCommand;

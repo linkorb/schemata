@@ -19,5 +19,8 @@
         "classmap": [
             "src"
         ]
-    }
+    },
+    "bin": [
+        "bin/schemata"
+    ]
 }
