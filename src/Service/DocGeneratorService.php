@@ -2,12 +2,26 @@
 
 namespace LinkORB\Schemata\Service;
 
+use LinkORB\Schemata\Entity\Schema;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 class DocGeneratorService extends AbstractGeneratorService
 {
     private const PATH_TEMPLATES = __DIR__ . '/../../templates';
+
+    /**
+     * @var Environment
+     */
+    private $twig;
+
+    public function __construct(Schema $schema, $pathOutput)
+    {
+        parent::__construct($schema, $pathOutput);
+
+        $loader = new FilesystemLoader(self::PATH_TEMPLATES);
+        $this->twig = new Environment($loader);
+    }
 
     public function generate(): void
     {
@@ -17,21 +31,17 @@ class DocGeneratorService extends AbstractGeneratorService
 
         $this->deleteObsoleteFiles();
 
-        $loader = new FilesystemLoader(self::PATH_TEMPLATES);
+        $this->generateIndex();
 
-        $twig = new Environment($loader);
+        $this->generateTables();
 
-        $this->generateIndex($twig);
+        $this->generateColumns();
 
-        $this->generateTables($twig);
+        $this->generateCodelists();
 
-        $this->generateColumns($twig);
+        $this->generateTaggedTables();
 
-        $this->generateCodelists($twig);
-
-        $this->generateTaggedTables($twig);
-
-        $this->generateValidationIssues($twig);
+        $this->generateValidationIssues();
     }
 
     protected function deleteObsoleteFiles(bool $bundle = false): void
@@ -39,12 +49,14 @@ class DocGeneratorService extends AbstractGeneratorService
         array_map('unlink', glob("$this->pathOutput/*.*"));
     }
 
-    private function generateIndex(Environment $twig): void
+    private function generateIndex(): void
     {
-        file_put_contents($this->pathOutput . '/index.html', $twig->render('index.html.twig'));
+        file_put_contents(
+            $this->pathOutput . '/index.html',
+            $this->twig->render('index.html.twig'));
     }
 
-    private function generateTables(Environment $twig): void
+    private function generateTables(): void
     {
         $tables = $this->schema->getTables();
         ksort($tables);
@@ -54,7 +66,7 @@ class DocGeneratorService extends AbstractGeneratorService
 
         file_put_contents(
             $this->pathOutput . '/tables.html',
-            $twig->render('tables.html.twig', [
+            $this->twig->render('tables.html.twig', [
                 'tables'  => $tables,
                 'tagsAll' => $tagsAll,
             ]));
@@ -62,14 +74,14 @@ class DocGeneratorService extends AbstractGeneratorService
         foreach ($tables as $table) {
             file_put_contents(
                 $this->pathOutput . '/table__' . $table->getName() . '.html',
-                $twig->render('table.html.twig', [
+                $this->twig->render('table.html.twig', [
                     'table' => $table,
                 ])
             );
         }
     }
 
-    private function generateColumns(Environment $twig): void
+    private function generateColumns(): void
     {
         $tables = $this->schema->getTables();
 
@@ -78,7 +90,7 @@ class DocGeneratorService extends AbstractGeneratorService
             foreach ($columns as $column) {
                 file_put_contents(
                     $this->pathOutput . '/column__' . $table->getName() . '__' . $column->getName() . '.html',
-                    $twig->render('column.html.twig', [
+                    $this->twig->render('column.html.twig', [
                         'column'    => $column,
                         'tableName' => $table->getName(),
                     ])
@@ -87,14 +99,14 @@ class DocGeneratorService extends AbstractGeneratorService
         }
     }
 
-    private function generateCodelists(Environment $twig): void
+    private function generateCodelists(): void
     {
         $codelists = $this->schema->getCodelists();
         ksort($codelists);
 
         file_put_contents(
             $this->pathOutput . '/codelists.html',
-            $twig->render('codelists.html.twig', [
+            $this->twig->render('codelists.html.twig', [
                 'codelists' => $codelists,
             ])
         );
@@ -102,7 +114,7 @@ class DocGeneratorService extends AbstractGeneratorService
         foreach ($codelists as $codelist) {
             file_put_contents(
                 $this->pathOutput . '/codelist__' . $codelist->getName() . '.html',
-                $twig->render('codelist.html.twig', [
+                $this->twig->render('codelist.html.twig', [
                     'name'  => $codelist->getName(),
                     'items' => $codelist->getItems(),
                 ])
@@ -110,23 +122,23 @@ class DocGeneratorService extends AbstractGeneratorService
         }
     }
 
-    private function generateTaggedTables(Environment $twig): void
+    private function generateTaggedTables(): void
     {
         foreach ($this->schema->getTaggedTables() as $tagName => $taggedTables) {
             file_put_contents(
                 $this->pathOutput . '/tables__tag_' . $tagName . '.html',
-                $twig->render('tables.html.twig', [
+                $this->twig->render('tables.html.twig', [
                     'tables' => $taggedTables,
                 ])
             );
         }
     }
 
-    private function generateValidationIssues(Environment $twig): void
+    private function generateValidationIssues(): void
     {
         file_put_contents(
             $this->pathOutput . '/validation-issues.html',
-            $twig->render('validation-issues.html.twig', [
+            $this->twig->render('validation-issues.html.twig', [
                 'tables' => $this->schema->getTablesWithIssues(),
             ]));
     }

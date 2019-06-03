@@ -33,7 +33,11 @@
         </tr>
         <tr>
             <td>Doc</td>
-            <td>{{ column.doc }}</td>
+            <td>
+                {% if column.doc %}
+                    <i>{{ column.doc }}</i>
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <td>Foreign Key</td>
