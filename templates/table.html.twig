@@ -42,7 +42,7 @@
             <tr>
                 <td>
                     <a id="field_{{ table.name }}.{{ column.name }}"></a>
-                    <code class="badge badge-secondary">{{ column.name }}</code><br/>
+                    <a href="column__{{ table.name }}__{{ column.name }}.html"><code class="badge badge-secondary">{{ column.name }}</code></a><br/>
                     {% if column.alias %}
                         <code class="badge badge-primary">{{ column.alias }}</code>
                     {% else %}

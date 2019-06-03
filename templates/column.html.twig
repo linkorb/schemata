@@ -1,0 +1,103 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2><a id="column_{{ column.name }}"></a>
+        Column: {{ column.name }}
+    </h2>
+    <h4>
+        Table: <a href="table__{{ tableName }}.html">{{ tableName }}</a>
+    </h4>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Property Name</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody class="table-body">
+        <tr>
+            <td>Name</td>
+            <td>{{ column.name }}</td>
+        </tr>
+        <tr>
+            <td>Alias</td>
+            <td>{{ column.alias }}</td>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>{{ column.type }}</td>
+        </tr>
+        <tr>
+            <td>Label</td>
+            <td>{{ column.label }}</td>
+        </tr>
+        <tr>
+            <td>Doc</td>
+            <td>{{ column.doc }}</td>
+        </tr>
+        <tr>
+            <td>Foreign Key</td>
+            <td>
+                {% if column.foreignKey %}
+                    <a href="table__{{ column.foreignTable }}.html#field_{{ column.foreignKey }}">
+                        {{ column.foreignKey }}
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td>Foreign Table</td>
+            <td>
+                {% if column.foreignTable and column.foreignKey %}
+                    <a href="table__{{ column.foreignTable }}.html">
+                        {{ column.foreignTable }}
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td>Codelist</td>
+            <td>
+                {% if column.codelist %}
+                    <a href="codelist__{{ column.codelist }}.html">
+                        {{ column.codelist }}
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td>Properties</td>
+            <td>
+                {% for property in column.properties %}
+                    {{ property }}
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td>Is Unique</td>
+            <td>{{ column.isUnique ? 'Yes' : 'No' }}</td>
+        </tr>
+        <tr>
+            <td>Is Generated</td>
+            <td>{{ column.isGenerated ? 'Yes' : 'No' }}</td>
+        </tr>
+        <tr>
+            <td>Tags</td>
+            <td>
+                {% for tag in column.tags %}
+                    <span class="badge badge-info">{{ tag.name }}</span>
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td>Violations</td>
+            <td>
+                {% for violation in column.violations %}
+                    <code class="badge badge-danger" style="margin: .2em 0 .2em 0"><b>"{{ violation.propertyPath }}":</b> {{ violation.message }}
+                    </code>
+                {% endfor %}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

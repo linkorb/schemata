@@ -25,6 +25,8 @@ class DocGeneratorService extends AbstractGeneratorService
 
         $this->generateTables($twig);
 
+        $this->generateColumns($twig);
+
         $this->generateCodelists($twig);
 
         $this->generateTaggedTables($twig);
@@ -64,6 +66,24 @@ class DocGeneratorService extends AbstractGeneratorService
                     'table' => $table,
                 ])
             );
+        }
+    }
+
+    private function generateColumns(Environment $twig): void
+    {
+        $tables = $this->schema->getTables();
+
+        foreach ($tables as $table) {
+            $columns = $table->getColumns();
+            foreach ($columns as $column) {
+                file_put_contents(
+                    $this->pathOutput . '/column__' . $table->getName() . '__' . $column->getName() . '.html',
+                    $twig->render('column.html.twig', [
+                        'column'    => $column,
+                        'tableName' => $table->getName(),
+                    ])
+                );
+            }
         }
     }
 
