@@ -2,6 +2,9 @@
 
 namespace LinkORB\Schemata\Service;
 
+use LinkORB\Schemata\Entity\Column;
+use LinkORB\Schemata\Entity\Schema;
+use LinkORB\Schemata\Entity\Table;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\Statements\CreateStatement;
 use RuntimeException;
@@ -19,7 +22,7 @@ class SchemaSQLParserService
         'CHAR',
         'GROUP',
         'TABLE',
-        'FULLTEXT'
+        'FULLTEXT',
     ];
 
     private const RESERVED_WORDS_PREFIX = 'TMP_FIELD_PREFIX_';
@@ -39,17 +42,12 @@ class SchemaSQLParserService
      */
     private $pathSQL;
 
-    /**
-     * @var CreateStatement[]
-     */
-    private $tables = [];
-
     public function __construct($pathSQL)
     {
         $this->pathSQL = $pathSQL;
     }
 
-    public function parse(ProgressBar $progressBar): array
+    public function parse(ProgressBar $progressBar): Schema
     {
         $finder = new Finder();
         $finder
@@ -61,23 +59,19 @@ class SchemaSQLParserService
         $progressBar->setRedrawFrequency(intdiv($finder->count(), 10));
         $progressBar->start();
 
+        $schema = new Schema();
+
         foreach ($finder as $file) {
             $contents = $file->getContents();
             $query = $this->normalizeToCreateTable($contents);
 
             $table = $this->getTableStructure($query);
 
-            $this->tables[] = [
-                'table' => [
-                    '@name'  => $table['name'],
-                    'column' => $table['columns'],
-                ],
-            ];
-
+            $schema->setTable($table);
             $progressBar->advance();
         }
 
-        return $this->tables;
+        return $schema;
     }
 
     private function normalizeToCreateTable($contents): string
@@ -106,7 +100,7 @@ class SchemaSQLParserService
         return str_replace(['[', ']'], '', $statementString);
     }
 
-    private function getTableStructure($query): array
+    private function getTableStructure($query): Table
     {
         $parser = new Parser($query);
 
@@ -120,10 +114,8 @@ class SchemaSQLParserService
             throw new RuntimeException('Wrong Statement.');
         }
 
-        $res = [
-            'name'    => $statement->name->table,
-            'columns' => [],
-        ];
+        $table = new Table();
+        $table->setName($statement->name->table);
 
         foreach ($statement->fields as $field) {
             if (empty($field->type)) { // Skip Constraint
@@ -135,13 +127,13 @@ class SchemaSQLParserService
                 $parameters = '(' . implode(', ', $field->type->parameters) . ')';
             }
 
-            $res['columns'][] = [
-                '@name' => str_replace(self::RESERVED_WORDS_PREFIX, '', $field->name),
-                '@type' => $field->type->name . $parameters,
-            ];
+            $column = new Column();
+            $column->setName(str_replace(self::RESERVED_WORDS_PREFIX, '', $field->name));
+            $column->setType($field->type->name . $parameters);
+            $table->addColumns([$column]);
         }
 
-        return $res;
+        return $table;
     }
 
     private function excludeBOM($contents)

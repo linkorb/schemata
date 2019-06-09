@@ -44,11 +44,6 @@ class DocGeneratorService extends AbstractGeneratorService
         $this->generateValidationIssues();
     }
 
-    protected function deleteObsoleteFiles(bool $bundle = false): void
-    {
-        array_map('unlink', glob("$this->pathOutput/*.*"));
-    }
-
     private function generateIndex(): void
     {
         file_put_contents(

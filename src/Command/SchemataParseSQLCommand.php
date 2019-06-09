@@ -2,7 +2,6 @@
 
 namespace LinkORB\Schemata\Command;
 
-use LinkORB\Schemata\Entity\Schema;
 use LinkORB\Schemata\Service\SchemaSQLParserService;
 use LinkORB\Schemata\Service\XMLGeneratorService;
 use Symfony\Component\Console\Command\Command;
@@ -41,15 +40,16 @@ class SchemataParseSQLCommand extends Command
 
         $progressBar = new ProgressBar($output);
 
-        $tables = $service->parse($progressBar);
+        $schema = $service->parse($progressBar);
+
         $progressBar->finish();
 
         $generator = new XMLGeneratorService(
-            new Schema(),
+            $schema,
             $input->getArgument(self::ARGUMENT_XML_PATH)
         );
 
-        $generator->generateXML($tables);
+        $generator->generate();
 
         $output->writeln([
             PHP_EOL . PHP_EOL,

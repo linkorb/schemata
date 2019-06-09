@@ -2,6 +2,7 @@
 
 namespace LinkORB\Schemata\Service;
 
+use LinkORB\Schemata\Entity\Table;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class XMLGeneratorService extends AbstractGeneratorService
@@ -10,32 +11,43 @@ class XMLGeneratorService extends AbstractGeneratorService
 
     public function generate(): void
     {
-        // TODO: Implement generate() method.
-    }
-
-    public function generateXML(array $tables): void
-    {
         $this->checkDirectory();
 
         $this->deleteObsoleteFiles();
 
         $encoder = new XmlEncoder();
 
-        foreach ($tables as $table) {
-            $dump = $encoder->encode($table, XmlEncoder::FORMAT, [
+        foreach ($this->schema->getTables() as $table) {
+            $data = $this->prepareDataArray($table);
+
+            $dump = $encoder->encode($data, XmlEncoder::FORMAT, [
                 XmlEncoder::ROOT_NODE_NAME => 'root',
                 XmlEncoder::STANDALONE     => false,
                 XmlEncoder::FORMAT_OUTPUT  => true,
             ]);
 
-            $filename = $table['table']['@name'];
+            $filename = $table->getName();
 
             file_put_contents($this->pathOutput . '/' . $filename . '.' . static::SCHEMA_EXT, $dump);
         }
     }
 
-    protected function deleteObsoleteFiles(bool $bundle = false): void
+    private function prepareDataArray(Table $table): array
     {
-        array_map('unlink', glob("$this->pathOutput/*.*"));
+        $data = [
+            'table' => [
+                '@name'  => $table->getName(),
+                'column' => [],
+            ],
+        ];
+
+        foreach ($table->getColumns() as $column) {
+            $data['table']['column'][] = [
+                '@name' => $column->getName(),
+                '@type' => $column->getType(),
+            ];
+        }
+
+        return $data;
     }
 }

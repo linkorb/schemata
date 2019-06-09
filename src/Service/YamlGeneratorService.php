@@ -17,7 +17,7 @@ class YamlGeneratorService extends AbstractGeneratorService
 
         $this->checkDirectory();
 
-        $this->deleteObsoleteFiles($bundle);
+        $this->deleteObsoleteFilesBundled($bundle);
 
         $data = $this->mapSchema();
 

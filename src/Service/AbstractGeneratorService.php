@@ -68,7 +68,12 @@ abstract class AbstractGeneratorService
         }
     }
 
-    protected function deleteObsoleteFiles(bool $bundle = false): void
+    protected function deleteObsoleteFiles(): void
+    {
+        array_map('unlink', glob("$this->pathOutput/*.*"));
+    }
+
+    protected function deleteObsoleteFilesBundled(bool $bundle = false): void
     {
         // Deletion of the existing files
         $path = $this->pathOutput . '/' . static::BUNDLE_FILE . '.' . static::SCHEMA_EXT;
