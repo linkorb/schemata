@@ -11,6 +11,30 @@ use Symfony\Component\Finder\Finder;
 class SchemaSQLParserService
 {
     /**
+     * Reserved MySQL words to avoid skipping
+     */
+    private const RESERVED_WORDS = [
+        'INDEX',
+        'KEY',
+        'CHAR',
+        'GROUP',
+        'TABLE',
+        'FULLTEXT'
+    ];
+
+    private const RESERVED_WORDS_PREFIX = 'TMP_FIELD_PREFIX_';
+
+    /**
+     * @var array
+     */
+    private $preparedReservedWords;
+
+    /**
+     * @var array
+     */
+    private $reservedWordsReplacements;
+
+    /**
      * @var string
      */
     private $pathSQL;
@@ -70,7 +94,11 @@ class SchemaSQLParserService
         }
 
         // Replace Reserved Words
-        $statementString = str_replace('[INDEX]', '[TMP_FIELD_PREFIX_INDEX]', $matches[1]);
+        $statementString = str_replace(
+            $this->prepareReservedWords(),
+            $this->prepareReservedWordsReplacements(),
+            $matches[1]
+        );
 
         // Remove Identity
         $statementString = preg_replace('/IDENTITY\(\d,\d\)/i', '', $statementString);
@@ -108,7 +136,7 @@ class SchemaSQLParserService
             }
 
             $res['columns'][] = [
-                '@name' => str_replace('TMP_FIELD_PREFIX_', '', $field->name),
+                '@name' => str_replace(self::RESERVED_WORDS_PREFIX, '', $field->name),
                 '@type' => $field->type->name . $parameters,
             ];
         }
@@ -123,5 +151,39 @@ class SchemaSQLParserService
         }
 
         return $contents;
+    }
+
+    private function prepareReservedWords(): array
+    {
+        if (null !== $this->preparedReservedWords) {
+            return $this->preparedReservedWords;
+        }
+
+        $res = [];
+
+        foreach (self::RESERVED_WORDS as $word) {
+            $res[] = '[' . $word . ']';
+        }
+
+        $this->preparedReservedWords = $res;
+
+        return $this->preparedReservedWords;
+    }
+
+    private function prepareReservedWordsReplacements(): array
+    {
+        if (null !== $this->reservedWordsReplacements) {
+            return $this->reservedWordsReplacements;
+        }
+
+        $res = [];
+
+        foreach (self::RESERVED_WORDS as $word) {
+            $res[] = '[' . self::RESERVED_WORDS_PREFIX . $word . ']';
+        }
+
+        $this->reservedWordsReplacements = $res;
+
+        return $this->reservedWordsReplacements;
     }
 }
