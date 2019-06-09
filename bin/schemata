@@ -30,6 +30,7 @@ use LinkORB\Schemata\Command\GenerateContextSchemaCommand;
 use LinkORB\Schemata\Command\GenerateGraphQLSchemaCommand;
 use LinkORB\Schemata\Command\GenerateHtmlDocCommand;
 use LinkORB\Schemata\Command\SchemataDiffCommand;
+use LinkORB\Schemata\Command\SchemataParseSQLCommand;
 use LinkORB\Schemata\Command\SchemataValidateCommand;
 use Symfony\Component\Console\Application;
 
@@ -40,5 +41,6 @@ $app->add(new GenerateContextSchemaCommand());
 $app->add(new GenerateGraphQLSchemaCommand());
 $app->add(new SchemataValidateCommand());
 $app->add(new SchemataDiffCommand());
+$app->add(new SchemataParseSQLCommand());
 
 $app->run();

@@ -2,6 +2,8 @@
 
 namespace LinkORB\Schemata\Entity;
 
+use RuntimeException;
+
 /**
  * Reflects single schema xml file as a package of tables
  *
@@ -19,7 +21,7 @@ class XmlPackage
         } else if (isset($tables['@name'])) {
             $this->tables[] = $tables;
         } else {
-            throw new \Exception('Unknown Table Format.');
+            throw new RuntimeException('Unknown Table Format.');
         }
 
         return $this;
