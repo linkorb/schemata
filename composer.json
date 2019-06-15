@@ -11,7 +11,8 @@
         "symfony/yaml": "^4.2",
         "symfony/validator": "^4.2",
         "pitpit/php-diff": "^1.0@dev",
-        "phpmyadmin/sql-parser": "^5.0"
+        "phpmyadmin/sql-parser": "^5.0",
+        "erusev/parsedown": "dev-master"
     },
     "autoload": {
         "psr-4": {

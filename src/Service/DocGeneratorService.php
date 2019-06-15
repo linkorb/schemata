@@ -31,8 +31,6 @@ class DocGeneratorService extends AbstractGeneratorService
 
         $this->deleteObsoleteFiles();
 
-        $this->generateIndex();
-
         $this->generateTables();
 
         $this->generateColumns();
@@ -42,13 +40,6 @@ class DocGeneratorService extends AbstractGeneratorService
         $this->generateTaggedTables();
 
         $this->generateValidationIssues();
-    }
-
-    private function generateIndex(): void
-    {
-        file_put_contents(
-            $this->pathOutput . '/index.html',
-            $this->twig->render('index.html.twig'));
     }
 
     private function generateTables(): void
@@ -136,5 +127,33 @@ class DocGeneratorService extends AbstractGeneratorService
             $this->twig->render('validation-issues.html.twig', [
                 'tables' => $this->schema->getTablesWithIssues(),
             ]));
+    }
+
+    public function generatePages(array $pages): void
+    {
+        foreach ($pages as $name => $contents) {
+            file_put_contents(
+                $this->pathOutput . '/' . $name,
+                $this->twig->render(
+                    'page.html.twig',
+                    [
+                        'contents' => $contents,
+                    ]
+                )
+            );
+        }
+
+        $names = array_keys($pages);
+        sort($names);
+
+        file_put_contents(
+            $this->pathOutput . '/pages.html',
+            $this->twig->render(
+                'pages.html.twig',
+                [
+                    'names' => $names,
+                ]
+            )
+        );
     }
 }

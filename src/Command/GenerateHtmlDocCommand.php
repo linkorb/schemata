@@ -3,8 +3,10 @@
 namespace LinkORB\Schemata\Command;
 
 use LinkORB\Schemata\Service\DocGeneratorService;
+use LinkORB\Schemata\Service\SchemaPagesParserService;
 use LinkORB\Schemata\Service\SchemaProviderPath;
 use LinkORB\Schemata\Service\SchemaService;
+use Parsedown;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,10 +53,20 @@ class GenerateHtmlDocCommand extends Command
 
         $generator->generate();
 
+        $pagesParser = new SchemaPagesParserService(
+            $input->getArgument(self::ARGUMENT_INPUT_PATH),
+            new Parsedown()
+        );
+
+        $pages = $pagesParser->parse();
+
+        $generator->generatePages($pages);
+
         $output->writeln([
             'Schema has been parsed successfully.',
             'Number of tables: ' . count($schema->getTables()),
             'Number of codelists: ' . count($schema->getCodelists()),
+            'Number of pages: ' . count($pages),
         ]);
     }
 }
