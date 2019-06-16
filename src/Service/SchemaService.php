@@ -14,13 +14,18 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 class SchemaService
 {
     public const CODELISTS_AS_TABLES = 1;
+
+    private const CONFIG_FILE = 'schemata.yml';
 
     /** @var array */
     private $tablesArray = [];
@@ -41,6 +46,11 @@ class SchemaService
      */
     private $validator;
 
+    /**
+     * @var string[]
+     */
+    private $aliasWhitelist;
+
     public function __construct($pathSchema, $flag = null)
     {
         $this->pathSchema = $pathSchema;
@@ -49,6 +59,8 @@ class SchemaService
         $this->validator = Validation::createValidatorBuilder()
             ->addMethodMapping('loadValidatorMetadata')
             ->getValidator();
+
+        $this->aliasWhitelist = $this->getAliasWhitelistFromConfig($pathSchema);
     }
 
     public function parseSchema(): void
@@ -397,7 +409,12 @@ class SchemaService
         if (0 < $errors->count()) {
             $iterator = $errors->getIterator();
 
-            foreach ($iterator as $violationItem) {
+            foreach ($iterator as $index => $violationItem) {
+                if ($this->matchAliasWhitelist($violationItem)) {
+                    $errors->remove($index);
+                    continue;
+                }
+
                 $table->addViolation($violationItem);
             }
         }
@@ -413,12 +430,25 @@ class SchemaService
         if (0 < $errors->count()) {
             $iterator = $errors->getIterator();
 
-            foreach ($iterator as $violationItem) {
+            foreach ($iterator as $index => $violationItem) {
+                if ($this->matchAliasWhitelist($violationItem)) {
+                    $errors->remove($index);
+                    continue;
+                }
+
                 $column->addViolation($violationItem);
             }
         }
 
         return $errors;
+    }
+
+    private function matchAliasWhitelist(ConstraintViolation $violationItem): bool
+    {
+        return (
+            'alias' === $violationItem->getPropertyPath() &&
+            in_array($violationItem->getInvalidValue(), $this->aliasWhitelist, true)
+        );
     }
 
     private function convertCodelistToTable(Codelist $codelist): Table
@@ -443,5 +473,19 @@ class SchemaService
         $contents = preg_replace('/(\n){2,}/', "\n", $contents);
 
         return $contents;
+    }
+
+    private function getAliasWhitelistFromConfig($path): array
+    {
+        try {
+            $res = Yaml::parseFile($path . '/../' . self::CONFIG_FILE);
+            if (!empty($res['alias-whitelist']) && is_array($res['alias-whitelist'])) {
+                return $res['alias-whitelist'];
+            }
+        } catch (ParseException $e) {
+            // do nothing
+        }
+
+        return [];
     }
 }
