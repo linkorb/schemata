@@ -21,6 +21,9 @@ class Schema
      */
     private $taggedTables = [];
 
+    /**
+     * @var Table[]
+     */
     private $tablesWithIssues = [];
 
     public function getTaggedTables(): array
@@ -90,11 +93,13 @@ class Schema
 
     public function addTableWithIssues(Table $table): void
     {
-        $this->tablesWithIssues[$table->getName()] = $table;
+        if (!array_key_exists($table->getName(), $this->tablesWithIssues)) {
+            $this->tablesWithIssues[$table->getName()] = $table;
+        }
     }
 
     /**
-     * @return array
+     * @return Table[]
      */
     public function getTablesWithIssues(): array
     {

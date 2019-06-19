@@ -2,6 +2,7 @@
 
 namespace LinkORB\Schemata\Entity;
 
+use DateTime;
 use LinkORB\Schemata\Validators\CamelCaseLower;
 use LinkORB\Schemata\Validators\SQLIdentifier;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -49,6 +50,11 @@ class Column
      * @var ConstraintViolation[]
      */
     private $violations = [];
+
+    /**
+     * @var array
+     */
+    private $issues = [];
 
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
@@ -301,5 +307,47 @@ class Column
     public function cleanUpViolations(): void
     {
         $this->violations = [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getIssues(): array
+    {
+        return $this->issues;
+    }
+
+    /**
+     * @param array $issues
+     * @return Column
+     */
+    public function setIssues(array $issues): Column
+    {
+        foreach ($issues as $idx => $issue) {
+            if (!isset($issue['note'][0])) {
+                $issues[$idx]['note'] = [$issue['note']];
+            }
+
+            usort(
+                $issues[$idx]['note'],
+                static function ($a, $b) {
+                    if ($a['@createdAt'] === $b['@createdAt']) {
+                        return 0;
+                    }
+
+                    return ($a['@createdAt'] < $b['@createdAt']) ? -1 : 1;
+                }
+            );
+
+            foreach ($issues[$idx]['note'] as $idxNote => $note) {
+                if (!empty($note['@createdAt'])) {
+                    $issues[$idx]['note'][$idxNote]['@createdAt'] = DateTime::createFromFormat('Ymd', $note['@createdAt']);
+                }
+            }
+        }
+
+        $this->issues = $issues;
+
+        return $this;
     }
 }

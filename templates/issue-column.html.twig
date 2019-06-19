@@ -1,0 +1,36 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2><a id="issue__{{ tableName }}__{{ columnName }}__{{ idx }}"></a>
+        Issue: <sup>
+            <small>
+                <span class="badge badge-{{ isOpen ? 'danger' : 'success' }}">{{ isOpen ? 'Open' : 'Closed' }}</span>
+            </small>
+        </sup>
+    </h2>
+    <h4>
+        Column:
+        <a href="column__{{ tableName }}__{{ columnName }}.html">{{ columnName }}</a>
+    </h4>
+    <h4>Notes</h4>
+    <table class="table">
+        <tr>
+            <th style="width: 1px;">Created</th>
+            <th>Author</th>
+            <th>Note</th>
+        </tr>
+        {% for note in issue.note %}
+            <tr>
+                <td>
+                    <code style="white-space: nowrap;">{{ attribute(note, '@createdAt')|date('Y-m-d') }}</code>
+                </td>
+                <td>
+                    <code style="white-space: nowrap;">{{ attribute(note, '@author') }}</code>
+                </td>
+                <td>
+                    <code style="white-space: nowrap;">{{ attribute(note, '#') }}</code>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

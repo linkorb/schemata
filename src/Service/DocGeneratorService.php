@@ -40,6 +40,8 @@ class DocGeneratorService extends AbstractGeneratorService
         $this->generateTaggedTables();
 
         $this->generateValidationIssues();
+
+        $this->generateRegularIssues();
     }
 
     private function generateTables(): void
@@ -124,9 +126,116 @@ class DocGeneratorService extends AbstractGeneratorService
     {
         file_put_contents(
             $this->pathOutput . '/validation-issues.html',
-            $this->twig->render('validation-issues.html.twig', [
-                'tables' => $this->schema->getTablesWithIssues(),
-            ]));
+            $this->twig->render(
+                'validation-issues.html.twig',
+                [
+                    'tables' => $this->schema->getTablesWithIssues(),
+                ]
+            )
+        );
+    }
+
+    private function generateRegularIssues(): void
+    {
+        $issuesOpen = [];
+        $issuesClosed = [];
+
+        $tables = $this->schema->getTablesWithIssues();
+
+        foreach ($tables as $table) {
+            foreach ($table->getIssues() as $idxTableIssue => $tableIssue) {
+                $isOpen = true;
+                if (
+                    !isset($tableIssue['@status']) ||
+                    !in_array($tableIssue['@status'], ['open', 'closed'])
+                ) {
+                    $tableIssue['@status'] = 'unknown';
+                }
+
+                if ('closed' === $tableIssue['@status']) {
+                    $issuesClosed[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
+                    $isOpen = false;
+                } else {
+                    $issuesOpen[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
+                }
+
+                $this->generateTableIssue($tableIssue, $table->getName(), $idxTableIssue, $isOpen);
+            }
+
+            foreach ($table->getColumns() as $column) {
+                foreach ($column->getIssues() as $idxColumnIssue => $columnIssue) {
+                    $isOpen = true;
+                    if (
+                        !isset($columnIssue['@status']) ||
+                        !in_array($columnIssue['@status'], ['open', 'closed'])
+                    ) {
+                        $columnIssue['@status'] = 'unknown';
+                    }
+
+                    if ('closed' === $columnIssue['@status']) {
+                        $issuesClosed[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
+                        $isOpen = false;
+                    } else {
+                        $issuesOpen[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
+                    }
+
+                    $this->generateColumnIssue($columnIssue, $table->getName(), $column->getName(), $idxColumnIssue, $isOpen);
+                }
+            }
+        }
+
+        file_put_contents(
+            $this->pathOutput . '/issues-open.html',
+            $this->twig->render(
+                'issues-open.html.twig',
+                [
+                    'issues' => $issuesOpen,
+                ]
+            )
+        );
+
+        file_put_contents(
+            $this->pathOutput . '/issues-closed.html',
+            $this->twig->render(
+                'issues-closed.html.twig',
+                [
+                    'issues' => $issuesClosed,
+                ]
+            )
+        );
+    }
+
+    private function generateTableIssue($issue, $tableName, $idx, bool $isOpen): void
+    {
+        file_put_contents(
+            $this->pathOutput . '/issue__' . $tableName . '__' . $idx . '.html',
+            $this->twig->render(
+                'issue-table.html.twig',
+                [
+                    'issue'     => $issue,
+                    'tableName' => $tableName,
+                    'idx'       => $idx,
+                    'isOpen'    => $isOpen,
+                ]
+            )
+        );
+    }
+
+    private function generateColumnIssue($issue, $tableName, $columnName, $idx, bool $isOpen): void
+    {
+        file_put_contents(
+            $this->pathOutput . '/issue__' . $tableName . '__' . $columnName . '__' . $idx . '.html',
+            $this->twig->render(
+                'issue-column.html.twig',
+                [
+                    'issue'      => $issue,
+                    'tableName'  => $tableName,
+                    'columnName' => $columnName,
+                    'idx'        => $idx,
+                    'isOpen'     => $isOpen,
+                ]
+            )
+        );
     }
 
     public function generatePages(array $pages): void

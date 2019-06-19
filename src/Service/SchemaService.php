@@ -217,6 +217,14 @@ class SchemaService
                     }
                 }
             }
+
+            if (!empty($item['issue']) && is_array($item['issue'])) {
+                if (!isset($item['issue'][0])) {
+                    $item['issue'] = [$item['issue']];
+                }
+                $table->setIssues($item['issue']);
+                $this->schema->addTableWithIssues($table);
+            }
         }
     }
 
@@ -288,9 +296,23 @@ class SchemaService
                 }
             }
 
+            if (!empty($column['issue']) && is_array($column['issue'])) {
+                if (!isset($column['issue'][0])) {
+                    $column['issue'] = [$column['issue']];
+                }
+
+                $newColumn->setIssues($column['issue']);
+            }
+
             $errors = $this->validateColumn($newColumn);
 
-            if (false === $res['hasErrors'] && 0 < $errors->count()) {
+            if (
+                false === $res['hasErrors'] &&
+                (
+                    0 < $errors->count() ||
+                    0 < count($newColumn->getIssues())
+                )
+            ) {
                 $res['hasErrors'] = true;
             }
 
