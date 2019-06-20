@@ -2,6 +2,7 @@
 
 namespace LinkORB\Schemata\Service;
 
+use DateTime;
 use LinkORB\Schemata\Entity\Codelist;
 use LinkORB\Schemata\Entity\Column;
 use LinkORB\Schemata\Entity\Table;
@@ -222,7 +223,11 @@ class SchemaService
                 if (!isset($item['issue'][0])) {
                     $item['issue'] = [$item['issue']];
                 }
-                $table->setIssues($item['issue']);
+
+                $issues = $this->prepareIssues($item['issue']);
+
+                $table->setIssues($issues);
+
                 $this->schema->addTableWithIssues($table);
             }
         }
@@ -301,18 +306,14 @@ class SchemaService
                     $column['issue'] = [$column['issue']];
                 }
 
-                $newColumn->setIssues($column['issue']);
+                $issues = $this->prepareIssues($column['issue']);
+
+                $newColumn->setIssues($issues);
             }
 
-            $errors = $this->validateColumn($newColumn);
+            $hasColumnAnyIssues = $this->makeColumnValidation($newColumn);
 
-            if (
-                false === $res['hasErrors'] &&
-                (
-                    0 < $errors->count() ||
-                    0 < count($newColumn->getIssues())
-                )
-            ) {
+            if ($hasColumnAnyIssues) {
                 $res['hasErrors'] = true;
             }
 
@@ -509,5 +510,43 @@ class SchemaService
         }
 
         return [];
+    }
+
+    private function prepareIssues(array $issues): array
+    {
+        foreach ($issues as $idx => $issue) {
+            if (!isset($issue['note'][0])) {
+                $issues[$idx]['note'] = [$issue['note']];
+            }
+
+            usort(
+                $issues[$idx]['note'],
+                static function ($a, $b) {
+                    if ($a['@createdAt'] === $b['@createdAt']) {
+                        return 0;
+                    }
+
+                    return ($a['@createdAt'] < $b['@createdAt']) ? -1 : 1;
+                }
+            );
+
+            foreach ($issues[$idx]['note'] as $idxNote => $note) {
+                if (!empty($note['@createdAt'])) {
+                    $issues[$idx]['note'][$idxNote]['@createdAt'] = DateTime::createFromFormat('Ymd', $note['@createdAt']);
+                }
+            }
+        }
+
+        return $issues;
+    }
+
+    private function makeColumnValidation(Column $column): bool
+    {
+        $errors = $this->validateColumn($column);
+
+        return (
+            0 < $errors->count() ||
+            0 < count($column->getIssues())
+        );
     }
 }

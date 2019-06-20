@@ -2,7 +2,6 @@
 
 namespace LinkORB\Schemata\Entity;
 
-use DateTime;
 use LinkORB\Schemata\Validators\CamelCaseLower;
 use LinkORB\Schemata\Validators\SQLIdentifier;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -323,29 +322,6 @@ class Column
      */
     public function setIssues(array $issues): Column
     {
-        foreach ($issues as $idx => $issue) {
-            if (!isset($issue['note'][0])) {
-                $issues[$idx]['note'] = [$issue['note']];
-            }
-
-            usort(
-                $issues[$idx]['note'],
-                static function ($a, $b) {
-                    if ($a['@createdAt'] === $b['@createdAt']) {
-                        return 0;
-                    }
-
-                    return ($a['@createdAt'] < $b['@createdAt']) ? -1 : 1;
-                }
-            );
-
-            foreach ($issues[$idx]['note'] as $idxNote => $note) {
-                if (!empty($note['@createdAt'])) {
-                    $issues[$idx]['note'][$idxNote]['@createdAt'] = DateTime::createFromFormat('Ymd', $note['@createdAt']);
-                }
-            }
-        }
-
         $this->issues = $issues;
 
         return $this;
