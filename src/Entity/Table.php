@@ -30,7 +30,7 @@ class Table
     private $violations = [];
 
     /**
-     * @var array
+     * @var Issue[]
      */
     private $issues = [];
 
@@ -190,7 +190,7 @@ class Table
     }
 
     /**
-     * @return array
+     * @return Issue[]
      */
     public function getIssues(): array
     {
@@ -198,12 +198,14 @@ class Table
     }
 
     /**
-     * @param array $issues
+     * @param Issue[] $issues
      * @return Table
      */
     public function setIssues(array $issues): Table
     {
-        $this->issues = $issues;
+        foreach ($issues as $issue) {
+            $this->issues[] = $issue;
+        }
 
         return $this;
     }

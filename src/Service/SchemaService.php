@@ -2,9 +2,10 @@
 
 namespace LinkORB\Schemata\Service;
 
-use DateTime;
 use LinkORB\Schemata\Entity\Codelist;
 use LinkORB\Schemata\Entity\Column;
+use LinkORB\Schemata\Entity\Issue;
+use LinkORB\Schemata\Entity\Note;
 use LinkORB\Schemata\Entity\Table;
 use LinkORB\Schemata\Entity\Tag;
 use LinkORB\Schemata\Entity\XmlPackage;
@@ -224,7 +225,7 @@ class SchemaService
                     $item['issue'] = [$item['issue']];
                 }
 
-                $issues = $this->prepareIssues($item['issue']);
+                $issues = $this->prepareIssues($item['issue'], $table);
 
                 $table->setIssues($issues);
 
@@ -306,7 +307,7 @@ class SchemaService
                     $column['issue'] = [$column['issue']];
                 }
 
-                $issues = $this->prepareIssues($column['issue']);
+                $issues = $this->prepareIssues($column['issue'], $newColumn);
 
                 $newColumn->setIssues($issues);
             }
@@ -512,9 +513,13 @@ class SchemaService
         return [];
     }
 
-    private function prepareIssues(array $issues): array
+    private function prepareIssues(array $issues, $parent): array
     {
+        $newIssues = [];
+
         foreach ($issues as $idx => $issue) {
+            $newIssue = new Issue($parent);
+
             if (!isset($issue['note'][0])) {
                 $issues[$idx]['note'] = [$issue['note']];
             }
@@ -530,14 +535,40 @@ class SchemaService
                 }
             );
 
+            $issueNotes = [];
+
             foreach ($issues[$idx]['note'] as $idxNote => $note) {
+                $newNote = new Note();
+
                 if (!empty($note['@createdAt'])) {
-                    $issues[$idx]['note'][$idxNote]['@createdAt'] = DateTime::createFromFormat('Ymd', $note['@createdAt']);
+                    $newNote->setCreatedAt($note['@createdAt']);
                 }
+
+                if (!empty($note['@author'])) {
+                    $newNote->setAuthor($note['@author']);
+                }
+
+                if (!empty($note['#'])) {
+                    $newNote->setMessage($note['#']);
+                }
+
+                $issueNotes[] = $newNote;
             }
+
+            $newIssue->setNotes($issueNotes);
+
+            if (!empty($issue['@status'])) {
+                $newIssue->setStatus($issue['@status']);
+            }
+
+            if (!empty($issue['@type'])) {
+                $newIssue->setType($issue['@type']);
+            }
+
+            $newIssues[] = $newIssue;
         }
 
-        return $issues;
+        return $newIssues;
     }
 
     private function makeColumnValidation(Column $column): bool

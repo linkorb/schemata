@@ -107,9 +107,9 @@
             <td>
                 {% for idx, columnIssue in column.issues %}
                     <a href="./issue__{{ tableName }}__{{ column.name }}__{{ idx }}.html">
-                        <code class="badge badge-{{ attribute(columnIssue, '@status') == 'closed' ? 'success' : 'danger' }}" style="margin: .2em 0 .2em 0">
+                        <code class="badge badge-{{ columnIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
                             Column: <b>{{ column.name }}</b>,
-                            Type: {{ attribute(columnIssue, '@type') }}
+                            Type: {{ columnIssue.type }}
                         </code>
                     </a>
                     <br/>

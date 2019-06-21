@@ -2,6 +2,7 @@
 
 namespace LinkORB\Schemata\Service;
 
+use LinkORB\Schemata\Entity\Issue;
 use LinkORB\Schemata\Entity\Schema;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -144,42 +145,24 @@ class DocGeneratorService extends AbstractGeneratorService
 
         foreach ($tables as $table) {
             foreach ($table->getIssues() as $idxTableIssue => $tableIssue) {
-                $isOpen = true;
-                if (
-                    !isset($tableIssue['@status']) ||
-                    !in_array($tableIssue['@status'], ['open', 'closed'])
-                ) {
-                    $tableIssue['@status'] = 'unknown';
-                }
-
-                if ('closed' === $tableIssue['@status']) {
-                    $issuesClosed[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
-                    $isOpen = false;
-                } else {
+                if ($tableIssue->isOpen()) {
                     $issuesOpen[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
+                } else {
+                    $issuesClosed[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
                 }
 
-                $this->generateTableIssue($tableIssue, $table->getName(), $idxTableIssue, $isOpen);
+                $this->generateTableIssue($tableIssue, $idxTableIssue);
             }
 
             foreach ($table->getColumns() as $column) {
                 foreach ($column->getIssues() as $idxColumnIssue => $columnIssue) {
-                    $isOpen = true;
-                    if (
-                        !isset($columnIssue['@status']) ||
-                        !in_array($columnIssue['@status'], ['open', 'closed'])
-                    ) {
-                        $columnIssue['@status'] = 'unknown';
-                    }
-
-                    if ('closed' === $columnIssue['@status']) {
-                        $issuesClosed[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
-                        $isOpen = false;
-                    } else {
+                    if ($columnIssue->isOpen()) {
                         $issuesOpen[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
+                    } else {
+                        $issuesClosed[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
                     }
 
-                    $this->generateColumnIssue($columnIssue, $table->getName(), $column->getName(), $idxColumnIssue, $isOpen);
+                    $this->generateColumnIssue($columnIssue, $table->getName(), $idxColumnIssue);
                 }
             }
         }
@@ -187,9 +170,10 @@ class DocGeneratorService extends AbstractGeneratorService
         file_put_contents(
             $this->pathOutput . '/issues-open.html',
             $this->twig->render(
-                'issues-open.html.twig',
+                'issues.html.twig',
                 [
                     'issues' => $issuesOpen,
+                    'isOpen' => true,
                 ]
             )
         );
@@ -197,42 +181,39 @@ class DocGeneratorService extends AbstractGeneratorService
         file_put_contents(
             $this->pathOutput . '/issues-closed.html',
             $this->twig->render(
-                'issues-closed.html.twig',
+                'issues.html.twig',
                 [
                     'issues' => $issuesClosed,
+                    'isOpen' => false,
                 ]
             )
         );
     }
 
-    private function generateTableIssue($issue, $tableName, $idx, bool $isOpen): void
+    private function generateTableIssue(Issue $issue, $idx): void
     {
         file_put_contents(
-            $this->pathOutput . '/issue__' . $tableName . '__' . $idx . '.html',
+            $this->pathOutput . '/issue__' . $issue->getParent()->getName() . '__' . $idx . '.html',
             $this->twig->render(
                 'issue-table.html.twig',
+                [
+                    'issue' => $issue,
+                    'idx'   => $idx,
+                ]
+            )
+        );
+    }
+
+    private function generateColumnIssue(Issue $issue, $tableName, $idx): void
+    {
+        file_put_contents(
+            $this->pathOutput . '/issue__' . $tableName . '__' . $issue->getParent()->getName() . '__' . $idx . '.html',
+            $this->twig->render(
+                'issue-column.html.twig',
                 [
                     'issue'     => $issue,
                     'tableName' => $tableName,
                     'idx'       => $idx,
-                    'isOpen'    => $isOpen,
-                ]
-            )
-        );
-    }
-
-    private function generateColumnIssue($issue, $tableName, $columnName, $idx, bool $isOpen): void
-    {
-        file_put_contents(
-            $this->pathOutput . '/issue__' . $tableName . '__' . $columnName . '__' . $idx . '.html',
-            $this->twig->render(
-                'issue-column.html.twig',
-                [
-                    'issue'      => $issue,
-                    'tableName'  => $tableName,
-                    'columnName' => $columnName,
-                    'idx'        => $idx,
-                    'isOpen'     => $isOpen,
                 ]
             )
         );

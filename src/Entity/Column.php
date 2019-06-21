@@ -51,7 +51,7 @@ class Column
     private $violations = [];
 
     /**
-     * @var array
+     * @var Issue[]
      */
     private $issues = [];
 
@@ -309,7 +309,7 @@ class Column
     }
 
     /**
-     * @return array
+     * @return Issue[]
      */
     public function getIssues(): array
     {
@@ -317,12 +317,14 @@ class Column
     }
 
     /**
-     * @param array $issues
+     * @param Issue[] $issues
      * @return Column
      */
     public function setIssues(array $issues): Column
     {
-        $this->issues = $issues;
+        foreach ($issues as $issue) {
+            $this->issues[] = $issue;
+        }
 
         return $this;
     }

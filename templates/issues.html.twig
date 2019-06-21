@@ -1,7 +1,7 @@
 {% extends "base.html.twig" %}
 
 {% block content %}
-    <h2>Closed Regular Issues</h2>
+    <h2>{{ isOpen ? 'Open' : 'Closed' }} Regular Issues</h2>
 
     <table class="table">
         <thead>
@@ -24,9 +24,9 @@
                 <td>
                     {% for idx, tableIssue in tableIssues.table %}
                         <a href="./issue__{{ tableName }}__{{ idx }}.html">
-                            <code class="badge badge-success" style="margin: .2em 0 .2em 0">
+                            <code class="badge badge-{{ tableIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
                                 Table: <b>{{ tableName }}</b>,
-                                Type: {{ attribute(tableIssue, '@type') }}
+                                Type: {{ tableIssue.type }}
                             </code>
                         </a>
                         <br/>
@@ -36,9 +36,9 @@
                     {% for columnName, columnIssues in tableIssues.column %}
                         {% for idx, columnIssue in columnIssues %}
                             <a href="./issue__{{ tableName }}__{{ columnName }}__{{ idx }}.html">
-                                <code class="badge badge-success" style="margin: .2em 0 .2em 0">
+                                <code class="badge badge-{{ columnIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
                                     Column: <b>{{ columnName }}</b>,
-                                    Type: {{ attribute(columnIssue, '@type') }}
+                                    Type: {{ columnIssue.type }}
                                 </code>
                             </a>
                             <br/>

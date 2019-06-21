@@ -1,16 +1,16 @@
 {% extends "base.html.twig" %}
 
 {% block content %}
-    <h2><a id="issue__{{ tableName }}__{{ columnName }}__{{ idx }}"></a>
+    <h2><a id="issue__{{ tableName }}__{{ issue.parent.name }}__{{ idx }}"></a>
         Issue: <sup>
             <small>
-                <span class="badge badge-{{ isOpen ? 'danger' : 'success' }}">{{ isOpen ? 'Open' : 'Closed' }}</span>
+                <span class="badge badge-{{ issue.isOpen ? 'danger' : 'success' }}">{{ issue.isOpen ? 'Open' : 'Closed' }}</span>
             </small>
         </sup>
     </h2>
     <h4>
         Column:
-        <a href="column__{{ tableName }}__{{ columnName }}.html">{{ columnName }}</a>
+        <a href="column__{{ tableName }}__{{ issue.parent.name }}.html">{{ issue.parent.name }}</a>
     </h4>
     <h4>Notes</h4>
     <table class="table">
@@ -19,16 +19,16 @@
             <th>Author</th>
             <th>Note</th>
         </tr>
-        {% for note in issue.note %}
+        {% for note in issue.notes %}
             <tr>
                 <td>
-                    <code style="white-space: nowrap;">{{ attribute(note, '@createdAt')|date('Y-m-d') }}</code>
+                    <code style="white-space: nowrap;">{{ note.createdAt|date('Y-m-d') }}</code>
                 </td>
                 <td>
-                    <code style="white-space: nowrap;">{{ attribute(note, '@author') }}</code>
+                    <code style="white-space: nowrap;">{{ note.author }}</code>
                 </td>
                 <td>
-                    <code style="white-space: nowrap;">{{ attribute(note, '#') }}</code>
+                    <code style="white-space: nowrap;">{{ note.message }}</code>
                 </td>
             </tr>
         {% endfor %}

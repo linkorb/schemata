@@ -104,9 +104,9 @@
         <h4>Regular Issues</h4>
         {% for idx, tableIssue in table.issues %}
             <a href="./issue__{{ table.name }}__{{ idx }}.html">
-                <code class="badge badge-{{ attribute(tableIssue, '@status') == 'closed' ? 'success' : 'danger' }}" style="margin: .2em 0 .2em 0">
+                <code class="badge badge-{{ tableIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
                     Table: <b>{{ table.name }}</b>,
-                    Type: {{ attribute(tableIssue, '@type') }}
+                    Type: {{ tableIssue.type }}
                 </code>
             </a>
             <br>
