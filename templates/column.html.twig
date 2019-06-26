@@ -102,6 +102,20 @@
                 {% endfor %}
             </td>
         </tr>
+        <tr>
+            <td>Regular Issues</td>
+            <td>
+                {% for idx, columnIssue in column.issues %}
+                    <a href="./issue__{{ tableName }}__{{ column.name }}__{{ idx }}.html">
+                        <code class="badge badge-{{ columnIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                            Column: <b>{{ column.name }}</b>,
+                            Type: {{ columnIssue.type }}
+                        </code>
+                    </a>
+                    <br/>
+                {% endfor %}
+            </td>
+        </tr>
         </tbody>
     </table>
 {% endblock %}

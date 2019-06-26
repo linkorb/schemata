@@ -1,0 +1,52 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2>{{ isOpen ? 'Open' : 'Closed' }} Regular Issues</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Table Issues</th>
+            <th>Column Issues</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        {% for tableName, tableIssues in issues %}
+            <tr>
+                <td>
+                    <a href="./table__{{ tableName }}.html">
+                        <code class="badge badge-secondary">
+                            {{ tableName }}
+                        </code>
+                    </a>
+                </td>
+                <td>
+                    {% for idx, tableIssue in tableIssues.table %}
+                        <a href="./issue__{{ tableName }}__{{ idx }}.html">
+                            <code class="badge badge-{{ tableIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                                Table: <b>{{ tableName }}</b>,
+                                Type: {{ tableIssue.type }}
+                            </code>
+                        </a>
+                        <br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for columnName, columnIssues in tableIssues.column %}
+                        {% for idx, columnIssue in columnIssues %}
+                            <a href="./issue__{{ tableName }}__{{ columnName }}__{{ idx }}.html">
+                                <code class="badge badge-{{ columnIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                                    Column: <b>{{ columnName }}</b>,
+                                    Type: {{ columnIssue.type }}
+                                </code>
+                            </a>
+                            <br/>
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

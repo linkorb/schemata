@@ -29,6 +29,11 @@ class Table
      */
     private $violations = [];
 
+    /**
+     * @var Issue[]
+     */
+    private $issues = [];
+
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata
@@ -182,5 +187,26 @@ class Table
     public function cleanUpViolations(): void
     {
         $this->violations = [];
+    }
+
+    /**
+     * @return Issue[]
+     */
+    public function getIssues(): array
+    {
+        return $this->issues;
+    }
+
+    /**
+     * @param Issue[] $issues
+     * @return Table
+     */
+    public function setIssues(array $issues): Table
+    {
+        foreach ($issues as $issue) {
+            $this->issues[] = $issue;
+        }
+
+        return $this;
     }
 }

@@ -50,7 +50,9 @@
                     {% endif %}
                     <br/>
                     {% for violation in column.violations %}
-                        <code class="badge badge-danger" style="margin: .2em 0 .2em 0"><b>"{{ violation.propertyPath }}":</b> {{ violation.message }}</code>
+                        <code class="badge badge-danger" style="margin: .2em 0 .2em 0">
+                            <b>"{{ violation.propertyPath }}":</b> {{ violation.message }}
+                        </code>
                         <br/>
                     {% endfor %}
                 </td>
@@ -97,5 +99,19 @@
         {% endfor %}
         </tbody>
     </table>
+    <br>
+    {% if table.issues %}
+        <h4>Regular Issues</h4>
+        {% for idx, tableIssue in table.issues %}
+            <a href="./issue__{{ table.name }}__{{ idx }}.html">
+                <code class="badge badge-{{ tableIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                    Table: <b>{{ table.name }}</b>,
+                    Type: {{ tableIssue.type }}
+                </code>
+            </a>
+            <br>
+        {% endfor %}
+        </ul>
+    {% endif %}
     <a href="./tables.html">Back to tableindex</a>
 {% endblock %}

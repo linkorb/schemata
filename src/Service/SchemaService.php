@@ -4,6 +4,8 @@ namespace LinkORB\Schemata\Service;
 
 use LinkORB\Schemata\Entity\Codelist;
 use LinkORB\Schemata\Entity\Column;
+use LinkORB\Schemata\Entity\Issue;
+use LinkORB\Schemata\Entity\Note;
 use LinkORB\Schemata\Entity\Table;
 use LinkORB\Schemata\Entity\Tag;
 use LinkORB\Schemata\Entity\XmlPackage;
@@ -217,6 +219,18 @@ class SchemaService
                     }
                 }
             }
+
+            if (!empty($item['issue']) && is_array($item['issue'])) {
+                if (!isset($item['issue'][0])) {
+                    $item['issue'] = [$item['issue']];
+                }
+
+                $issues = $this->prepareIssues($item['issue'], $table);
+
+                $table->setIssues($issues);
+
+                $this->schema->addTableWithIssues($table);
+            }
         }
     }
 
@@ -288,9 +302,19 @@ class SchemaService
                 }
             }
 
-            $errors = $this->validateColumn($newColumn);
+            if (!empty($column['issue']) && is_array($column['issue'])) {
+                if (!isset($column['issue'][0])) {
+                    $column['issue'] = [$column['issue']];
+                }
 
-            if (false === $res['hasErrors'] && 0 < $errors->count()) {
+                $issues = $this->prepareIssues($column['issue'], $newColumn);
+
+                $newColumn->setIssues($issues);
+            }
+
+            $hasColumnAnyIssues = $this->makeColumnValidation($newColumn);
+
+            if ($hasColumnAnyIssues) {
                 $res['hasErrors'] = true;
             }
 
@@ -487,5 +511,73 @@ class SchemaService
         }
 
         return [];
+    }
+
+    private function prepareIssues(array $issues, $parent): array
+    {
+        $newIssues = [];
+
+        foreach ($issues as $idx => $issue) {
+            $newIssue = new Issue($parent);
+
+            if (!isset($issue['note'][0])) {
+                $issues[$idx]['note'] = [$issue['note']];
+            }
+
+            usort(
+                $issues[$idx]['note'],
+                static function ($a, $b) {
+                    if ($a['@createdAt'] === $b['@createdAt']) {
+                        return 0;
+                    }
+
+                    return ($a['@createdAt'] < $b['@createdAt']) ? -1 : 1;
+                }
+            );
+
+            $issueNotes = [];
+
+            foreach ($issues[$idx]['note'] as $idxNote => $note) {
+                $newNote = new Note();
+
+                if (!empty($note['@createdAt'])) {
+                    $newNote->setCreatedAt($note['@createdAt']);
+                }
+
+                if (!empty($note['@author'])) {
+                    $newNote->setAuthor($note['@author']);
+                }
+
+                if (!empty($note['#'])) {
+                    $newNote->setMessage($note['#']);
+                }
+
+                $issueNotes[] = $newNote;
+            }
+
+            $newIssue->setNotes($issueNotes);
+
+            if (!empty($issue['@status'])) {
+                $newIssue->setStatus($issue['@status']);
+            }
+
+            if (!empty($issue['@type'])) {
+                $newIssue->setType($issue['@type']);
+            }
+
+            $newIssues[] = $newIssue;
+        }
+
+        return $newIssues;
+    }
+
+    private function makeColumnValidation(Column $column): bool
+    {
+        $errors = $this->validateColumn($column);
+
+        return (
+            0 < $errors->count() ||
+            0 < count($column->getIssues())
+        );
     }
 }
