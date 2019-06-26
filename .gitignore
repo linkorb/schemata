@@ -1,5 +1,6 @@
 .docker/
 .idea/
+node_modules/
 
 /build/
 /vendor/
