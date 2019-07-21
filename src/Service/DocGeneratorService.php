@@ -32,56 +32,56 @@ class DocGeneratorService extends AbstractGeneratorService
 
         $this->deleteObsoleteFiles();
 
-        $this->generateTables();
+        $this->generateTypes();
 
-        $this->generateColumns();
+        $this->generateFields();
 
         $this->generateCodelists();
 
-        $this->generateTaggedTables();
+        $this->generateTaggedTypes();
 
         $this->generateValidationIssues();
 
         $this->generateRegularIssues();
     }
 
-    private function generateTables(): void
+    private function generateTypes(): void
     {
-        $tables = $this->schema->getTables();
-        ksort($tables);
+        $types = $this->schema->getTypes();
+        ksort($types);
 
         $tagsAll = $this->schema->getTagsAll();
         ksort($tagsAll);
 
         file_put_contents(
-            $this->pathOutput . '/tables.html',
-            $this->twig->render('tables.html.twig', [
-                'tables'  => $tables,
+            $this->pathOutput . '/types.html',
+            $this->twig->render('types.html.twig', [
+                'types'  => $types,
                 'tagsAll' => $tagsAll,
             ]));
 
-        foreach ($tables as $table) {
+        foreach ($types as $type) {
             file_put_contents(
-                $this->pathOutput . '/table__' . $table->getName() . '.html',
-                $this->twig->render('table.html.twig', [
-                    'table' => $table,
+                $this->pathOutput . '/type__' . $type->getName() . '.html',
+                $this->twig->render('type.html.twig', [
+                    'type' => $type,
                 ])
             );
         }
     }
 
-    private function generateColumns(): void
+    private function generateFields(): void
     {
-        $tables = $this->schema->getTables();
+        $types = $this->schema->getTypes();
 
-        foreach ($tables as $table) {
-            $columns = $table->getColumns();
-            foreach ($columns as $column) {
+        foreach ($types as $type) {
+            $fields = $type->getFields();
+            foreach ($fields as $field) {
                 file_put_contents(
-                    $this->pathOutput . '/column__' . $table->getName() . '__' . $column->getName() . '.html',
-                    $this->twig->render('column.html.twig', [
-                        'column'    => $column,
-                        'tableName' => $table->getName(),
+                    $this->pathOutput . '/field__' . $type->getName() . '__' . $field->getName() . '.html',
+                    $this->twig->render('field.html.twig', [
+                        'field'    => $field,
+                        'typeName' => $type->getName(),
                     ])
                 );
             }
@@ -111,13 +111,13 @@ class DocGeneratorService extends AbstractGeneratorService
         }
     }
 
-    private function generateTaggedTables(): void
+    private function generateTaggedTypes(): void
     {
-        foreach ($this->schema->getTaggedTables() as $tagName => $taggedTables) {
+        foreach ($this->schema->getTaggedTypes() as $tagName => $taggedTypes) {
             file_put_contents(
-                $this->pathOutput . '/tables__tag_' . $tagName . '.html',
-                $this->twig->render('tables.html.twig', [
-                    'tables' => $taggedTables,
+                $this->pathOutput . '/types__tag_' . $tagName . '.html',
+                $this->twig->render('types.html.twig', [
+                    'types' => $taggedTypes,
                 ])
             );
         }
@@ -130,7 +130,7 @@ class DocGeneratorService extends AbstractGeneratorService
             $this->twig->render(
                 'validation-issues.html.twig',
                 [
-                    'tables' => $this->schema->getTablesWithIssues(),
+                    'types' => $this->schema->getTypesWithIssues(),
                 ]
             )
         );
@@ -141,28 +141,28 @@ class DocGeneratorService extends AbstractGeneratorService
         $issuesOpen = [];
         $issuesClosed = [];
 
-        $tables = $this->schema->getTablesWithIssues();
+        $types = $this->schema->getTypesWithIssues();
 
-        foreach ($tables as $table) {
-            foreach ($table->getIssues() as $idxTableIssue => $tableIssue) {
-                if ($tableIssue->isOpen()) {
-                    $issuesOpen[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
+        foreach ($types as $type) {
+            foreach ($type->getIssues() as $idxTypeIssue => $typeIssue) {
+                if ($typeIssue->isOpen()) {
+                    $issuesOpen[$type->getName()]['type'][$idxTypeIssue] = $typeIssue;
                 } else {
-                    $issuesClosed[$table->getName()]['table'][$idxTableIssue] = $tableIssue;
+                    $issuesClosed[$type->getName()]['type'][$idxTypeIssue] = $typeIssue;
                 }
 
-                $this->generateTableIssue($tableIssue, $idxTableIssue);
+                $this->generateTypeIssue($typeIssue, $idxTypeIssue);
             }
 
-            foreach ($table->getColumns() as $column) {
-                foreach ($column->getIssues() as $idxColumnIssue => $columnIssue) {
-                    if ($columnIssue->isOpen()) {
-                        $issuesOpen[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
+            foreach ($type->getFields() as $field) {
+                foreach ($field->getIssues() as $idxFieldIssue => $fieldIssue) {
+                    if ($fieldIssue->isOpen()) {
+                        $issuesOpen[$type->getName()]['field'][$field->getName()][$idxFieldIssue] = $fieldIssue;
                     } else {
-                        $issuesClosed[$table->getName()]['column'][$column->getName()][$idxColumnIssue] = $columnIssue;
+                        $issuesClosed[$type->getName()]['field'][$field->getName()][$idxFieldIssue] = $fieldIssue;
                     }
 
-                    $this->generateColumnIssue($columnIssue, $table->getName(), $idxColumnIssue);
+                    $this->generateFieldIssue($fieldIssue, $type->getName(), $idxFieldIssue);
                 }
             }
         }
@@ -190,12 +190,12 @@ class DocGeneratorService extends AbstractGeneratorService
         );
     }
 
-    private function generateTableIssue(Issue $issue, $idx): void
+    private function generateTypeIssue(Issue $issue, $idx): void
     {
         file_put_contents(
             $this->pathOutput . '/issue__' . $issue->getParent()->getName() . '__' . $idx . '.html',
             $this->twig->render(
-                'issue-table.html.twig',
+                'issue-type.html.twig',
                 [
                     'issue' => $issue,
                     'idx'   => $idx,
@@ -204,15 +204,15 @@ class DocGeneratorService extends AbstractGeneratorService
         );
     }
 
-    private function generateColumnIssue(Issue $issue, $tableName, $idx): void
+    private function generateFieldIssue(Issue $issue, $typeName, $idx): void
     {
         file_put_contents(
-            $this->pathOutput . '/issue__' . $tableName . '__' . $issue->getParent()->getName() . '__' . $idx . '.html',
+            $this->pathOutput . '/issue__' . $typeName . '__' . $issue->getParent()->getName() . '__' . $idx . '.html',
             $this->twig->render(
-                'issue-column.html.twig',
+                'issue-field.html.twig',
                 [
                     'issue'     => $issue,
-                    'tableName' => $tableName,
+                    'typeName' => $typeName,
                     'idx'       => $idx,
                 ]
             )

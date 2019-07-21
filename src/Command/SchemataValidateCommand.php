@@ -37,7 +37,7 @@ class SchemataValidateCommand extends Command
 
         $schema = $service->getSchema();
 
-        if (!empty($schema->getTablesWithIssues())) {
+        if (!empty($schema->getTypesWithIssues())) {
             $output->writeln([
                 'There are some validation issues.',
             ]);

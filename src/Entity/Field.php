@@ -7,7 +7,7 @@ use LinkORB\Schemata\Validators\SQLIdentifier;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 
-class Column
+class Field
 {
     /** @var string */
     private $name;
@@ -25,7 +25,7 @@ class Column
     private $foreignKey;
 
     /** @var string */
-    private $foreignTable;
+    private $foreignType;
 
     /** @var string */
     private $codelist;
@@ -72,9 +72,9 @@ class Column
 
     /**
      * @param string $name
-     * @return Column
+     * @return Field
      */
-    public function setName(string $name): Column
+    public function setName(string $name): Field
     {
         $this->name = $name;
 
@@ -91,9 +91,9 @@ class Column
 
     /**
      * @param string $type
-     * @return Column
+     * @return Field
      */
-    public function setType(string $type): Column
+    public function setType(string $type): Field
     {
         $this->type = $type;
 
@@ -110,9 +110,9 @@ class Column
 
     /**
      * @param string $label
-     * @return Column
+     * @return Field
      */
-    public function setLabel(string $label): Column
+    public function setLabel(string $label): Field
     {
         $this->label = $label;
 
@@ -129,9 +129,9 @@ class Column
 
     /**
      * @param string $doc
-     * @return Column
+     * @return Field
      */
-    public function setDoc(string $doc): Column
+    public function setDoc(string $doc): Field
     {
         $this->doc = $doc;
 
@@ -148,9 +148,9 @@ class Column
 
     /**
      * @param string $foreignKey
-     * @return Column
+     * @return Field
      */
-    public function setForeignKey(string $foreignKey): Column
+    public function setForeignKey(string $foreignKey): Field
     {
         $this->foreignKey = $foreignKey;
 
@@ -160,18 +160,18 @@ class Column
     /**
      * @return string
      */
-    public function getForeignTable(): ?string
+    public function getForeignType(): ?string
     {
-        return $this->foreignTable;
+        return $this->foreignType;
     }
 
     /**
-     * @param string $foreignTable
-     * @return Column
+     * @param string $foreignType
+     * @return Field
      */
-    public function setForeignTable(string $foreignTable): Column
+    public function setForeignType(string $foreignType): Field
     {
-        $this->foreignTable = $foreignTable;
+        $this->foreignType = $foreignType;
 
         return $this;
     }
@@ -186,9 +186,9 @@ class Column
 
     /**
      * @param string $codelist
-     * @return Column
+     * @return Field
      */
-    public function setCodelist(string $codelist): Column
+    public function setCodelist(string $codelist): Field
     {
         $this->codelist = $codelist;
 
@@ -205,9 +205,9 @@ class Column
 
     /**
      * @param string $alias
-     * @return Column
+     * @return Field
      */
-    public function setAlias(string $alias): Column
+    public function setAlias(string $alias): Field
     {
         $this->alias = $alias;
 
@@ -224,9 +224,9 @@ class Column
 
     /**
      * @param array $properties
-     * @return Column
+     * @return Field
      */
-    public function setProperties(array $properties): Column
+    public function setProperties(array $properties): Field
     {
         $this->properties = $properties;
 
@@ -243,9 +243,9 @@ class Column
 
     /**
      * @param bool $unique
-     * @return Column
+     * @return Field
      */
-    public function setUnique(bool $unique): Column
+    public function setUnique(bool $unique): Field
     {
         $this->unique = $unique;
 
@@ -262,9 +262,9 @@ class Column
 
     /**
      * @param bool $generated
-     * @return Column
+     * @return Field
      */
-    public function setGenerated(bool $generated): Column
+    public function setGenerated(bool $generated): Field
     {
         $this->generated = $generated;
 
@@ -294,9 +294,9 @@ class Column
 
     /**
      * @param ConstraintViolation $violation
-     * @return Column
+     * @return Field
      */
-    public function addViolation(ConstraintViolation $violation): Column
+    public function addViolation(ConstraintViolation $violation): Field
     {
         $this->violations[] = $violation;
 
@@ -318,9 +318,9 @@ class Column
 
     /**
      * @param Issue[] $issues
-     * @return Column
+     * @return Field
      */
-    public function setIssues(array $issues): Column
+    public function setIssues(array $issues): Field
     {
         foreach ($issues as $issue) {
             $this->issues[] = $issue;

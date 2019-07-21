@@ -30,11 +30,11 @@ class YamlGeneratorService extends AbstractGeneratorService
 
     private function generateFiles($data): void
     {
-        foreach ($data['tables'] as $tableName => $table) {
-            $dump = Yaml::dump($table, 6, self::INDENT);
+        foreach ($data['types'] as $typeName => $type) {
+            $dump = Yaml::dump($type, 6, self::INDENT);
             $dump = str_replace("'", '', $dump);
 
-            file_put_contents($this->pathOutput . '/' . $tableName . '.' . self::SCHEMA_EXT, "---\n" . $dump);
+            file_put_contents($this->pathOutput . '/' . $typeName . '.' . self::SCHEMA_EXT, "---\n" . $dump);
         }
     }
 
@@ -49,42 +49,42 @@ class YamlGeneratorService extends AbstractGeneratorService
     private function mapSchema(): array
     {
         $map = [
-            'tables' => [],
+            'types' => [],
         ];
 
-        foreach ($this->schema->getTables() as $key => $item) {
-            $map['tables'][$key] = [
-                'columns'    => [],
+        foreach ($this->schema->getTypes() as $key => $item) {
+            $map['types'][$key] = [
+                'fields'    => [],
                 'references' => [],
             ];
 
-            foreach ($item->getColumns() as $columnName => $column) {
-                if (null !== $column->getForeignKey()) {
-                    $map['tables'][$key]['references'][$columnName . '_ref'] = [
-                        'local'   => $column->getName(),
-                        'remote'  => $column->getForeignKey(),
-                        'reverse' => $column->getForeignTable() . '_reverse',
+            foreach ($item->getFields() as $fieldName => $field) {
+                if (null !== $field->getForeignKey()) {
+                    $map['types'][$key]['references'][$fieldName . '_ref'] = [
+                        'local'   => $field->getName(),
+                        'remote'  => $field->getForeignKey(),
+                        'reverse' => $field->getForeignType() . '_reverse',
                     ];
-                } else if (null !== $column->getCodelist()) {
-                    $map['tables'][$key]['references'][$columnName . '_ref'] = [
-                        'local'   => $column->getName(),
-                        'remote'  => 'codelist__' . $column->getCodelist() . '.code',
-                        'reverse' => $column->getForeignTable() . '_reverse',
+                } else if (null !== $field->getCodelist()) {
+                    $map['types'][$key]['references'][$fieldName . '_ref'] = [
+                        'local'   => $field->getName(),
+                        'remote'  => 'codelist__' . $field->getCodelist() . '.code',
+                        'reverse' => $field->getForeignType() . '_reverse',
                     ];
                 } else {
-                    $map['tables'][$key]['columns'][$columnName] = [
-                        'description' => $column->getLabel() ?? strtoupper($column->getName()),
-                        'type'        => $this->normalizeType($column->getType()),
+                    $map['types'][$key]['fields'][$fieldName] = [
+                        'description' => $field->getLabel() ?? strtoupper($field->getName()),
+                        'type'        => $this->normalizeType($field->getType()),
                     ];
 
-                    if (true === $column->isUnique()) {
-                        $map['tables'][$key]['columns'][$columnName]['unique'] = true;
+                    if (true === $field->isUnique()) {
+                        $map['types'][$key]['fields'][$fieldName]['unique'] = true;
                     }
                 }
             }
 
-            if (0 === count($map['tables'][$key]['references'])) {
-                unset($map['tables'][$key]['references']);
+            if (0 === count($map['types'][$key]['references'])) {
+                unset($map['types'][$key]['references']);
             }
         }
 

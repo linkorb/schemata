@@ -46,6 +46,8 @@ class GenerateHtmlDocCommand extends Command
 
         $schema = $service->getSchema();
 
+        $output->writeln('Generating HTML documentation');
+
         $generator = new DocGeneratorService(
             $schema,
             $input->getArgument(self::ARGUMENT_OUTPUT_PATH)
@@ -63,8 +65,7 @@ class GenerateHtmlDocCommand extends Command
         $generator->generatePages($pages);
 
         $output->writeln([
-            'Schema has been parsed successfully.',
-            'Number of tables: ' . count($schema->getTables()),
+            'Number of types: ' . count($schema->getTypes()),
             'Number of codelists: ' . count($schema->getCodelists()),
             'Number of pages: ' . count($pages),
         ]);

@@ -61,7 +61,7 @@ class GenerateContextSchemaCommand extends Command
 
         $output->writeln([
             'Schema has been parsed successfully.',
-            'Number of tables: ' . count($schema->getTables()),
+            'Number of types: ' . count($schema->getTypes()),
             'Number of codelists: ' . count($schema->getCodelists()),
         ]);
     }

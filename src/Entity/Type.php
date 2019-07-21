@@ -7,7 +7,7 @@ use LinkORB\Schemata\Validators\SQLIdentifier;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 
-class Table
+class Type
 {
     /** @var string */
     private $name;
@@ -15,8 +15,8 @@ class Table
     /** @var string */
     private $alias;
 
-    /** @var Column[] */
-    private $columns = [];
+    /** @var Field[] */
+    private $fields = [];
 
     /** @var Tag[] */
     private $tags = [];
@@ -51,9 +51,9 @@ class Table
 
     /**
      * @param string $name
-     * @return Table
+     * @return Type
      */
-    public function setName(string $name): Table
+    public function setName(string $name): Type
     {
         $this->name = $name;
 
@@ -70,9 +70,9 @@ class Table
 
     /**
      * @param string $alias
-     * @return Table
+     * @return Type
      */
-    public function setAlias(string $alias): Table
+    public function setAlias(string $alias): Type
     {
         $this->alias = $alias;
 
@@ -80,25 +80,25 @@ class Table
     }
 
     /**
-     * @param Column[] $columns
+     * @param Field[] $fields
      */
-    public function addColumns(array $columns): void
+    public function addFields(array $fields): void
     {
-        foreach ($columns as $column) {
-            $name = $column->getName();
+        foreach ($fields as $field) {
+            $name = $field->getName();
 
-            if (!array_key_exists($name, $this->columns)) {
-                $this->columns[$name] = $column;
+            if (!array_key_exists($name, $this->fields)) {
+                $this->fields[$name] = $field;
             }
         }
     }
 
     /**
-     * @return Column[]
+     * @return Field[]
      */
-    public function getColumns(): array
+    public function getFields(): array
     {
-        return $this->columns;
+        return $this->fields;
     }
 
     public function addTag(Tag $tag): void
@@ -124,20 +124,20 @@ class Table
 
     /**
      * @param array $properties
-     * @return Table
+     * @return Type
      */
-    public function setProperties(array $properties): Table
+    public function setProperties(array $properties): Type
     {
         $this->properties = $properties;
 
         return $this;
     }
 
-    public function getColumnAliasPercentage()
+    public function getFieldAliasPercentage()
     {
         $total = 0;
         $aliasTotal = 0;
-        foreach ($this->columns as $c) {
+        foreach ($this->fields as $c) {
             if (!$c->isGenerated()) {
                 if ($c->getAlias()) {
                     $aliasTotal++;
@@ -152,9 +152,9 @@ class Table
         return round(100 / $total * $aliasTotal);
     }
 
-    public function getColumnAliasPercentageClass(): string
+    public function getFieldAliasPercentageClass(): string
     {
-        $percentage = $this->getColumnAliasPercentage();
+        $percentage = $this->getFieldAliasPercentage();
         if ($percentage === 0) {
             return 'secondary';
         }
@@ -175,9 +175,9 @@ class Table
 
     /**
      * @param ConstraintViolation $violation
-     * @return Table
+     * @return Type
      */
-    public function addViolation(ConstraintViolation $violation): Table
+    public function addViolation(ConstraintViolation $violation): Type
     {
         $this->violations[] = $violation;
 
@@ -199,9 +199,9 @@ class Table
 
     /**
      * @param Issue[] $issues
-     * @return Table
+     * @return Type
      */
-    public function setIssues(array $issues): Table
+    public function setIssues(array $issues): Type
     {
         foreach ($issues as $issue) {
             $this->issues[] = $issue;

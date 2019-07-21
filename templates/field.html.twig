@@ -1,8 +1,8 @@
 {% extends "base.html.twig" %}
 
 {% block content %}
-    <h2><a id="column_{{ column.name }}"></a>
-        Column: {{ column.name }}
+    <h2><a id="field_{{ field.name }}"></a>
+        Field: {{ field.name }}
     </h2>
     <h4>
         Table: <a href="table__{{ tableName }}.html">{{ tableName }}</a>
@@ -17,34 +17,34 @@
         <tbody class="table-body">
         <tr>
             <td>Name</td>
-            <td>{{ column.name }}</td>
+            <td>{{ field.name }}</td>
         </tr>
         <tr>
             <td>Alias</td>
-            <td>{{ column.alias }}</td>
+            <td>{{ field.alias }}</td>
         </tr>
         <tr>
             <td>Type</td>
-            <td>{{ column.type }}</td>
+            <td>{{ field.type }}</td>
         </tr>
         <tr>
             <td>Label</td>
-            <td>{{ column.label }}</td>
+            <td>{{ field.label }}</td>
         </tr>
         <tr>
             <td>Doc</td>
             <td>
-                {% if column.doc %}
-                    <i>{{ column.doc }}</i>
+                {% if field.doc %}
+                    <i>{{ field.doc }}</i>
                 {% endif %}
             </td>
         </tr>
         <tr>
             <td>Foreign Key</td>
             <td>
-                {% if column.foreignKey %}
-                    <a href="table__{{ column.foreignTable }}.html#field_{{ column.foreignKey }}">
-                        {{ column.foreignKey }}
+                {% if field.foreignKey %}
+                    <a href="table__{{ field.foreignTable }}.html#field_{{ field.foreignKey }}">
+                        {{ field.foreignKey }}
                     </a>
                 {% endif %}
             </td>
@@ -52,9 +52,9 @@
         <tr>
             <td>Foreign Table</td>
             <td>
-                {% if column.foreignTable and column.foreignKey %}
-                    <a href="table__{{ column.foreignTable }}.html">
-                        {{ column.foreignTable }}
+                {% if field.foreignTable and field.foreignKey %}
+                    <a href="table__{{ field.foreignTable }}.html">
+                        {{ field.foreignTable }}
                     </a>
                 {% endif %}
             </td>
@@ -62,9 +62,9 @@
         <tr>
             <td>Codelist</td>
             <td>
-                {% if column.codelist %}
-                    <a href="codelist__{{ column.codelist }}.html">
-                        {{ column.codelist }}
+                {% if field.codelist %}
+                    <a href="codelist__{{ field.codelist }}.html">
+                        {{ field.codelist }}
                     </a>
                 {% endif %}
             </td>
@@ -72,23 +72,23 @@
         <tr>
             <td>Properties</td>
             <td>
-                {% for property in column.properties %}
+                {% for property in field.properties %}
                     {{ property }}
                 {% endfor %}
             </td>
         </tr>
         <tr>
             <td>Is Unique</td>
-            <td>{{ column.isUnique ? 'Yes' : 'No' }}</td>
+            <td>{{ field.isUnique ? 'Yes' : 'No' }}</td>
         </tr>
         <tr>
             <td>Is Generated</td>
-            <td>{{ column.isGenerated ? 'Yes' : 'No' }}</td>
+            <td>{{ field.isGenerated ? 'Yes' : 'No' }}</td>
         </tr>
         <tr>
             <td>Tags</td>
             <td>
-                {% for tag in column.tags %}
+                {% for tag in field.tags %}
                     <span class="badge badge-info">{{ tag.name }}</span>
                 {% endfor %}
             </td>
@@ -96,7 +96,7 @@
         <tr>
             <td>Violations</td>
             <td>
-                {% for violation in column.violations %}
+                {% for violation in field.violations %}
                     <code class="badge badge-danger" style="margin: .2em 0 .2em 0"><b>"{{ violation.propertyPath }}":</b> {{ violation.message }}
                     </code>
                 {% endfor %}
@@ -105,11 +105,11 @@
         <tr>
             <td>Regular Issues</td>
             <td>
-                {% for idx, columnIssue in column.issues %}
-                    <a href="./issue__{{ tableName }}__{{ column.name }}__{{ idx }}.html">
-                        <code class="badge badge-{{ columnIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
-                            Column: <b>{{ column.name }}</b>,
-                            Type: {{ columnIssue.type }}
+                {% for idx, fieldIssue in field.issues %}
+                    <a href="./issue__{{ tableName }}__{{ field.name }}__{{ idx }}.html">
+                        <code class="badge badge-{{ fieldIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                            Field: <b>{{ field.name }}</b>,
+                            Type: {{ fieldIssue.type }}
                         </code>
                     </a>
                     <br/>

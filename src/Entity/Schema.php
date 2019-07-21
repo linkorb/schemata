@@ -7,9 +7,9 @@ use RuntimeException;
 class Schema
 {
     /**
-     * @var Table[]
+     * @var Type[]
      */
-    private $tables = [];
+    private $types = [];
 
     /**
      * @var Codelist[]
@@ -19,48 +19,48 @@ class Schema
     /**
      * @var array
      */
-    private $taggedTables = [];
+    private $taggedTypes = [];
 
     /**
-     * @var Table[]
+     * @var Type[]
      */
-    private $tablesWithIssues = [];
+    private $typesWithIssues = [];
 
-    public function getTaggedTables(): array
+    public function getTaggedTypes(): array
     {
-        return $this->taggedTables;
+        return $this->taggedTypes;
     }
 
     public function getTagsAll(): array
     {
-        return array_keys($this->taggedTables);
+        return array_keys($this->taggedTypes);
     }
 
-    public function addTaggedTable(Tag $tag, Table $table): void
+    public function addTaggedType(Tag $tag, Type $type): void
     {
-        $this->taggedTables[$tag->getName()][$table->getName()] = $table;
+        $this->taggedTypes[$tag->getName()][$type->getName()] = $type;
     }
 
     /**
-     * @return Table[]
+     * @return Type[]
      */
-    public function getTables(): array
+    public function getTypes(): array
     {
-        return $this->tables;
+        return $this->types;
     }
 
-    public function getTable($tableName): Table
+    public function getType($typeName): Type
     {
-        if (array_key_exists($tableName, $this->tables)) {
-            return $this->tables[$tableName];
+        if (array_key_exists($typeName, $this->types)) {
+            return $this->types[$typeName];
         }
 
-        throw new RuntimeException('Table does not exist.');
+        throw new RuntimeException('Type does not exist.');
     }
 
-    public function setTable(Table $table): Schema
+    public function setType(Type $type): Schema
     {
-        $this->tables[$table->getName()] = $table;
+        $this->types[$type->getName()] = $type;
 
         return $this;
     }
@@ -74,13 +74,13 @@ class Schema
         $this->codelists[$codelist->getName()] = $codelist;
     }
 
-    public function addCodelistAsTable(Table $table): void
+    public function addCodelistAsType(Type $type): void
     {
-        if (array_key_exists($table->getName(), $this->tables)) {
-            throw new RuntimeException('Codelist duplication: ' . $table->getName());
+        if (array_key_exists($type->getName(), $this->types)) {
+            throw new RuntimeException('Codelist duplication: ' . $type->getName());
         }
 
-        $this->setTable($table);
+        $this->setType($type);
     }
 
     /**
@@ -91,30 +91,30 @@ class Schema
         return $this->codelists;
     }
 
-    public function addTableWithIssues(Table $table): void
+    public function addTypeWithIssues(Type $type): void
     {
-        if (!array_key_exists($table->getName(), $this->tablesWithIssues)) {
-            $this->tablesWithIssues[$table->getName()] = $table;
+        if (!array_key_exists($type->getName(), $this->typesWithIssues)) {
+            $this->typesWithIssues[$type->getName()] = $type;
         }
     }
 
     /**
-     * @return Table[]
+     * @return Type[]
      */
-    public function getTablesWithIssues(): array
+    public function getTypesWithIssues(): array
     {
-        return $this->tablesWithIssues;
+        return $this->typesWithIssues;
     }
 
     public function cleanUpForDiff(): void
     {
-        $this->taggedTables = [];
+        $this->taggedTypes = [];
 
-        $this->tablesWithIssues = [];
+        $this->typesWithIssues = [];
 
-        foreach ($this->tables as $table) {
-            $table->cleanUpViolations();
-            foreach ($table->getColumns() as $column) {
+        foreach ($this->types as $type) {
+            $type->cleanUpViolations();
+            foreach ($type->getFields() as $column) {
                 $column->cleanUpViolations();
             }
         }

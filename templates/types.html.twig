@@ -1,7 +1,7 @@
 {% extends "base.html.twig" %}
 
 {% block content %}
-    <h2>Table index</h2>
+    <h2>Type index</h2>
     <input
             id="searchInput"
             autofocus
@@ -11,7 +11,7 @@
     />
     {% for tagName in tagsAll %}
         <a
-                href="tables__tag_{{ tagName }}.html"
+                href="types__tag_{{ tagName }}.html"
                 class="badge badge-info"
                 style="margin: .2em 0 .2em 0"
         >{{ tagName }}</a>
@@ -26,32 +26,32 @@
         </tr>
         </thead>
         <tbody id="table-body">
-        {% for table in tables %}
+        {% for type in types %}
             <tr>
                 <td>
-                    <a href="./table__{{ table.name }}.html">
+                    <a href="./type__{{ type.name }}.html">
                         <code class="badge badge-secondary">
-                            {{ table.name }}
+                            {{ type.name }}
                         </code><br/>
-                        {% if table.alias %}
-                            <code class="badge badge-primary">{{ table.alias }}</code>
+                        {% if type.alias %}
+                            <code class="badge badge-primary">{{ type.alias }}</code>
                         {% else %}
                             {# <code class="badge badge-danger">NO ALIAS</code> #}
                         {% endif %}
                     </a>
                 </td>
                 <td>
-                    {% for tag in table.tags %}
+                    {% for tag in type.tags %}
                         <a
-                                href="tables__tag_{{ tag.name }}.html"
+                                href="types__tag_{{ tag.name }}.html"
                                 class="badge badge-info"
                                 style="margin: .2em 0 .2em 0"
                         >{{ tag.name }}</a>
                     {% endfor %}
                 </td>
                 <td style="text-align: center;">
-                    <span class="badge badge-{{ table.getColumnAliasPercentageClass() }}">
-                    {{ table.getColumnAliasPercentage() }}%
+                    <span class="badge badge-{{ type.getFieldAliasPercentageClass() }}">
+                    {{ type.getFieldAliasPercentage() }}%
                     </span>
                 </td>
             </tr>

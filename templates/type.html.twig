@@ -1,24 +1,24 @@
 {% extends "base.html.twig" %}
 
 {% block content %}
-    <h2><a id="table_{{ table.name }}"></a>
-        Table: {{ table.name }}</h2>
+    <h2><a id="type_{{ type.name }}"></a>
+        Type: {{ type.name }}</h2>
     <div>
-        {% for tag in table.tags %}
+        {% for tag in type.tags %}
             <a
-                    href="tables__tag_{{ tag.name }}.html"
+                    href="types__tag_{{ tag.name }}.html"
                     class="badge badge-info"
                     style="margin: .2em 0 .2em 0"
             >{{ tag.name }}</a>
         {% endfor %}
     </div>
     <div>
-        {% for violation in table.violations %}
+        {% for violation in type.violations %}
             <span class="badge badge-danger"><b>"{{ violation.propertyPath }}":</b> {{ violation.message }}</span>
         {% endfor %}
     </div>
     <br/>
-    <h4>Columns</h4>
+    <h4>Fields</h4>
     <input
             id="searchInput"
             autofocus
@@ -38,18 +38,18 @@
         </tr>
         </thead>
         <tbody id="table-body">
-        {% for column in table.columns %}
+        {% for field in type.fields %}
             <tr>
                 <td>
-                    <a id="field_{{ table.name }}.{{ column.name }}"></a>
-                    <a href="column__{{ table.name }}__{{ column.name }}.html"><code class="badge badge-secondary">{{ column.name }}</code></a><br/>
-                    {% if column.alias %}
-                        <code class="badge badge-primary">{{ column.alias }}</code>
+                    <a id="field_{{ type.name }}.{{ field.name }}"></a>
+                    <a href="field__{{ type.name }}__{{ field.name }}.html"><code class="badge badge-secondary">{{ field.name }}</code></a><br/>
+                    {% if field.alias %}
+                        <code class="badge badge-primary">{{ field.alias }}</code>
                     {% else %}
                         <code class="badge badge-warning">NO ALIAS</code>
                     {% endif %}
                     <br/>
-                    {% for violation in column.violations %}
+                    {% for violation in field.violations %}
                         <code class="badge badge-danger" style="margin: .2em 0 .2em 0">
                             <b>"{{ violation.propertyPath }}":</b> {{ violation.message }}
                         </code>
@@ -59,31 +59,31 @@
                 <td>
                 </td>
                 <td>
-                    <b>{{ column.label|default(column.name|upper) }}</b><br/>
-                    {% if column.doc %}
-                        <i>{{ column.doc }}</i><br/>
+                    <b>{{ field.label|default(field.name|upper) }}</b><br/>
+                    {% if field.doc %}
+                        <i>{{ field.doc }}</i><br/>
                     {% endif %}
-                    {% for tag in column.tags %}
+                    {% for tag in field.tags %}
                         <span class="badge badge-info">{{ tag.name }}</span>
                     {% endfor %}
                 </td>
                 <td>
-                    {{ column.type }}
+                    {{ field.type }}
                 <td>
-                    {% if column.foreignKey %}
-                        <a href="table__{{ column.foreignTable }}.html#field_{{ column.foreignKey }}">
-                            &gt;{{ column.foreignKey }}
+                    {% if field.foreignKey %}
+                        <a href="type__{{ field.foreignType }}.html#field_{{ field.foreignKey }}">
+                            &gt;{{ field.foreignKey }}
                         </a><br/>
                     {% endif %}
-                    {% if column.codelist %}
-                        <a href="codelist__{{ column.codelist }}.html">
-                            @{{ column.codelist }}
+                    {% if field.codelist %}
+                        <a href="codelist__{{ field.codelist }}.html">
+                            @{{ field.codelist }}
                         </a><br/>
                     {% endif %}
                 </td>
             </tr>
         {% endfor %}
-        {% for propertyName, propertyValue in table.properties %}
+        {% for propertyName, propertyValue in type.properties %}
             <tr>
                 <td>
                     <code>{{ propertyName }}</code>
@@ -100,18 +100,18 @@
         </tbody>
     </table>
     <br>
-    {% if table.issues %}
+    {% if type.issues %}
         <h4>Regular Issues</h4>
-        {% for idx, tableIssue in table.issues %}
-            <a href="./issue__{{ table.name }}__{{ idx }}.html">
-                <code class="badge badge-{{ tableIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
-                    Table: <b>{{ table.name }}</b>,
-                    Type: {{ tableIssue.type }}
+        {% for idx, typeIssue in type.issues %}
+            <a href="./issue__{{ type.name }}__{{ idx }}.html">
+                <code class="badge badge-{{ typeIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                    Table: <b>{{ type.name }}</b>,
+                    Type: {{ typeIssue.type }}
                 </code>
             </a>
             <br>
         {% endfor %}
         </ul>
     {% endif %}
-    <a href="./tables.html">Back to tableindex</a>
+    <a href="./types.html">Back to typeindex</a>
 {% endblock %}

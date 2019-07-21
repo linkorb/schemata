@@ -31,36 +31,36 @@ class GraphQLGeneratorService extends AbstractGeneratorService
 
     private function generateFiles($data): void
     {
-        foreach ($data['types'] as $tableName => $table) {
-            $output = "type $tableName {\n";
-            foreach ($table['fields'] as $fieldName => $field) {
+        foreach ($data['types'] as $typeName => $type) {
+            $output = "type $typeName {\n";
+            foreach ($type['fields'] as $fieldName => $field) {
                 $output .= str_repeat(' ', self::INDENT) . $fieldName . ": {$field['type']}\n";
             }
 
-            if (isset($table['references'])) {
-                foreach ($table['references'] as $referenceName => $reference) {
+            if (isset($type['references'])) {
+                foreach ($type['references'] as $referenceName => $reference) {
                     $output .= str_repeat(' ', self::INDENT) . $referenceName . ": {$reference['remote']}\n";
                 }
             }
 
             $output .= "}\n";
 
-            file_put_contents($this->pathOutput . '/' . $tableName . '.' . self::SCHEMA_EXT, $output);
+            file_put_contents($this->pathOutput . '/' . $typeName . '.' . self::SCHEMA_EXT, $output);
         }
     }
 
     private function generateBundle($data): void
     {
         $output = '';
-        foreach ($data['types'] as $tableName => $table) {
-            $output .= "type $tableName {\n";
+        foreach ($data['types'] as $typeName => $type) {
+            $output .= "type $typeName {\n";
 
-            foreach ($table['fields'] as $fieldName => $field) {
+            foreach ($type['fields'] as $fieldName => $field) {
                 $output .= str_repeat(' ', self::INDENT) . $fieldName . ": {$field['type']}\n";
             }
 
-            if (isset($table['references'])) {
-                foreach ($table['references'] as $referenceName => $reference) {
+            if (isset($type['references'])) {
+                foreach ($type['references'] as $referenceName => $reference) {
                     $output .= str_repeat(' ', self::INDENT) . $referenceName . ": {$reference['remote']}\n";
                 }
             }
@@ -76,39 +76,39 @@ class GraphQLGeneratorService extends AbstractGeneratorService
     private function mapSchema(): array
     {
         $map = [
-            'tables' => [],
+            'types' => [],
         ];
 
-        foreach ($this->schema->getTables() as $key => $item) {
+        foreach ($this->schema->getTypes() as $key => $item) {
             $map['types'][$key] = [
                 'fields'     => [],
                 'references' => [],
             ];
 
-            foreach ($item->getColumns() as $columnName => $column) {
-                if (null !== $column->getForeignKey()) {
-                    $map['types'][$key]['references'][$columnName . '_ref'] = [
-                        'local'   => $column->getName(),
-                        'remote'  => $column->getForeignKey(),
-                        'reverse' => $column->getForeignTable() . '_reverse',
+            foreach ($item->getFields() as $fieldName => $field) {
+                if (null !== $field->getForeignKey()) {
+                    $map['types'][$key]['references'][$fieldName . '_ref'] = [
+                        'local'   => $field->getName(),
+                        'remote'  => $field->getForeignKey(),
+                        'reverse' => $field->getForeignType() . '_reverse',
                     ];
-                } else if (null !== $column->getCodelist()) {
-                    $map['types'][$key]['references'][$columnName . '_ref'] = [
-                        'local'   => $column->getName(),
-                        'remote'  => 'codelist__' . $column->getCodelist() . '.code',
-                        'reverse' => $column->getForeignTable() . '_reverse',
+                } else if (null !== $field->getCodelist()) {
+                    $map['types'][$key]['references'][$fieldName . '_ref'] = [
+                        'local'   => $field->getName(),
+                        'remote'  => 'codelist__' . $field->getCodelist() . '.code',
+                        'reverse' => $field->getForeignType() . '_reverse',
                     ];
                 } else {
-                    if ('id' === $column->getName()) {
-                        $column->setType('id');
+                    if ('id' === $field->getName()) {
+                        $field->setType('id');
                     }
-                    $map['types'][$key]['fields'][$columnName] = [
-                        'description' => $column->getLabel() ?? strtoupper($column->getName()),
-                        'type'        => $this->normalizeType($column->getType()),
+                    $map['types'][$key]['fields'][$fieldName] = [
+                        'description' => $field->getLabel() ?? strtoupper($field->getName()),
+                        'type'        => $this->normalizeType($field->getType()),
                     ];
 
-                    if (true === $column->isUnique()) {
-                        $map['types'][$key]['fields'][$columnName]['unique'] = true;
+                    if (true === $field->isUnique()) {
+                        $map['types'][$key]['fields'][$fieldName]['unique'] = true;
                     }
                 }
             }

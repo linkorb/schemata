@@ -3,10 +3,10 @@
 namespace LinkORB\Schemata\Service;
 
 use LinkORB\Schemata\Entity\Codelist;
-use LinkORB\Schemata\Entity\Column;
+use LinkORB\Schemata\Entity\Field;
 use LinkORB\Schemata\Entity\Issue;
 use LinkORB\Schemata\Entity\Note;
-use LinkORB\Schemata\Entity\Table;
+use LinkORB\Schemata\Entity\Type;
 use LinkORB\Schemata\Entity\Tag;
 use LinkORB\Schemata\Entity\XmlPackage;
 use LinkORB\Schemata\Entity\Schema;
@@ -30,7 +30,7 @@ class SchemaService
     private const CONFIG_FILE = 'schemata.yml';
 
     /** @var array */
-    private $tablesArray = [];
+    private $typesArray = [];
 
     /** @var string */
     private $pathSchema;
@@ -93,10 +93,10 @@ class SchemaService
                 XmlPackage::class,
                 XmlEncoder::FORMAT
             );
-            $this->addTables($package->getTables());
+            $this->addTypes($package->getTables());
         }
 
-        $this->hydrateTables();
+        $this->hydrateTypes();
     }
 
     private function parseCsv(): void
@@ -126,17 +126,17 @@ class SchemaService
             $codelist->setItems($codes);
 
             if (self::CODELISTS_AS_TABLES === $this->flag) {
-                $table = $this->convertCodelistToTable($codelist);
-                $this->schema->addCodelistAsTable($table);
+                $type = $this->convertCodelistToType($codelist);
+                $this->schema->addCodelistAsType($type);
             } else {
                 $this->schema->addCodelist($codelist);
             }
         }
     }
 
-    private function addTables(array $tables): void
+    private function addTypes(array $types): void
     {
-        $this->tablesArray = array_merge($this->tablesArray, $tables);
+        $this->typesArray = array_merge($this->typesArray, $types);
     }
 
     /**
@@ -152,56 +152,61 @@ class SchemaService
         return $this->schema;
     }
 
-    private function hydrateTables(): void
+    private function hydrateTypes(): void
     {
-        foreach ($this->tablesArray as $item) {
-            $tableName = $item['@name'];
+        foreach ($this->typesArray as $item) {
+            $typeName = $item['@name'];
 
-            if (!isset($item['column'])) {
-                $item['column'] = [];
-            } else if (!isset($item['column'][0])) {
-                $item['column'] = [$item['column']];
+            if (!isset($item['field'])) {
+                $item['field'] = [];
+            } else if (!isset($item['field'][0])) {
+                $item['field'] = [$item['field']];
             }
 
             if (isset($item['@extended']) && 'true' === $item['@extended']) {
                 /** @noinspection SlowArrayOperationsInLoopInspection */
-                $item['column'] = array_merge($item['column'], $this->getExtendedColumns());
+                $item['field'] = array_merge($item['field'], $this->getExtendedFields());
             }
 
-            if (!array_key_exists($tableName, $this->schema->getTables())) {
-                $table = new Table();
-                $table->setName($tableName);
+            if (!array_key_exists($typeName, $this->schema->getTypes())) {
+                $type = new Type();
+                $type->setName($typeName);
 
                 if (isset($item['@alias'])) {
-                    $table->setAlias($item['@alias']);
+                    $type->setAlias($item['@alias']);
                 }
 
-                $table->setProperties($this->getCustomProperties($item));
+                $type->setProperties($this->getCustomProperties($item));
 
-                // Add default columns
-                $defaultColumns = $this->prepareColumns($this->getDefaultColumns());
-                $table->addColumns($defaultColumns['columns']);
+                // Add default fields
+                $defaultFields = $this->prepareFields($this->getDefaultFields());
+                $type->addFields($defaultFields['fields']);
 
-                $errors = $this->validateTable($table);
+                $errors = $this->validateType($type);
 
                 if (
-                    true === $defaultColumns['hasErrors'] ||
+                    true === $defaultFields['hasErrors'] ||
                     0 < $errors->count()
                 ) {
-                    $this->schema->addTableWithIssues($table);
+                    $this->schema->addTypeWithIssues($type);
                 }
 
-                $this->schema->setTable($table);
+                $this->schema->setType($type);
             } else {
-                $table = $this->schema->getTable($tableName);
+                $type = $this->schema->getType($typeName);
             }
 
             if (!empty ($item['column'])) {
-                $newColumns = $this->prepareColumns($item['column']);
-                $table->addColumns($newColumns['columns']);
+                if (!isset($item['column'][0])) {
+                    // the table element only contains one column
+                    // then it should be cast to an array
+                    $item['column'] = [$item['column']];
+                }
+                $res = $this->prepareFields($item['column']);
+                $type->addFields($res['fields']);
 
-                if (true === $newColumns['hasErrors']) {
-                    $this->schema->addTableWithIssues($table);
+                if (true === $res['hasErrors']) {
+                    $this->schema->addTypeWithIssues($type);
                 }
             }
 
@@ -212,9 +217,9 @@ class SchemaService
                     if ($tagName) {
                         $tag = new Tag();
                         $tag->setName($tagName);
-                        $table->addTag($tag);
-                        if (!isset($this->schema->getTaggedTables()[$tag->getName()][$tableName])) {
-                            $this->schema->addTaggedTable($tag, $table);
+                        $type->addTag($tag);
+                        if (!isset($this->schema->getTaggedTypes()[$tag->getName()][$typeName])) {
+                            $this->schema->addTaggedType($tag, $type);
                         }
                     }
                 }
@@ -225,100 +230,104 @@ class SchemaService
                     $item['issue'] = [$item['issue']];
                 }
 
-                $issues = $this->prepareIssues($item['issue'], $table);
+                $issues = $this->prepareIssues($item['issue'], $type);
 
-                $table->setIssues($issues);
+                $type->setIssues($issues);
 
-                $this->schema->addTableWithIssues($table);
+                $this->schema->addTypeWithIssues($type);
             }
         }
     }
 
     /**
-     * @param $columns
+     * @param $fields
      * @return array
      */
-    private function prepareColumns($columns): array
+    private function prepareFields(array $fields): array
     {
         $res = [
-            'columns'   => [],
+            'fields'   => [],
             'hasErrors' => false,
         ];
 
-        foreach ($columns as $column) {
-            $name = $column['@name'];
+        foreach ($fields as $field) {
+            if (!isset($field['@name'])) {
+                // sanity check
+                throw new RuntimeException("Invalid field element");
+            }
+            $name = $field['@name'];
 
-            $newColumn = new Column();
+            $newField = new Field();
 
-            $newColumn->setName($name);
-            $newColumn->setProperties($this->getCustomProperties($column));
+            $newField->setName($name);
+            $newField->setProperties($this->getCustomProperties($field));
 
-            if (isset($column['@type'])) {
-                $newColumn->setType($column['@type']);
+            if (isset($field['@type'])) {
+                $newField->setType($field['@type']);
             }
 
-            if (isset($column['@label'])) {
-                $newColumn->setLabel($column['@label']);
+            if (isset($field['@label'])) {
+                $newField->setLabel($field['@label']);
             }
 
-            if (isset($column['@alias'])) {
-                $newColumn->setAlias($column['@alias']);
+            if (isset($field['@alias'])) {
+                $newField->setAlias($field['@alias']);
             }
-            if (isset($column['@generated'])) {
-                $newColumn->setGenerated($column['@generated']);
-            }
-
-            if (isset($column['@doc'])) {
-                $newColumn->setDoc($column['@doc']);
+            if (isset($field['@generated'])) {
+                $newField->setGenerated($field['@generated']);
             }
 
-            if (isset($column['@foreignkey'])) {
-                $keys = explode('.', $column['@foreignkey']);
+            if (isset($field['@doc'])) {
+                $newField->setDoc($field['@doc']);
+            }
+
+            if (isset($field['@foreignkey'])) {
+                $keys = explode('.', $field['@foreignkey']);
                 if (2 === count($keys)) {
-                    $newColumn->setForeignTable($keys[0]);
+                    $newField->setForeignType($keys[0]);
                 }
-                $newColumn->setForeignKey($column['@foreignkey']);
+                $newField->setForeignKey($field['@foreignkey']);
             }
 
-            if (isset($column['@codelist'])) {
-                $newColumn->setCodelist($column['@codelist']);
-                $newColumn->setType('codelist');
-                $newColumn->setForeignTable('codelist__' . $newColumn->getCodelist());
+            if (isset($field['@codelist'])) {
+                $newField->setCodelist($field['@codelist']);
+                $newField->setType('codelist');
+                $newField->setForeignType('codelist__' . $newField->getCodelist());
             }
 
-            if (isset($column['@unique']) && is_bool($column['@unique'])) {
-                $newColumn->setUnique($column['@unique']);
+            if (isset($field['@unique']) && is_bool($field['@unique'])) {
+                $newField->setUnique($field['@unique']);
             }
 
-            if (isset($column['@tags'])) {
-                $tagNames = explode(',', $column['@tags']);
+            if (isset($field['@tags'])) {
+                $tagNames = explode(',', $field['@tags']);
                 foreach ($tagNames as $tagName) {
                     $tagName = trim($tagName);
                     if (!empty($tagName)) {
                         $tag = new Tag();
                         $tag->setName($tagName);
-                        $newColumn->addTag($tag);
+                        $newField->addTag($tag);
                     }
                 }
             }
 
-            if (!empty($column['issue']) && is_array($column['issue'])) {
-                if (!isset($column['issue'][0])) {
-                    $column['issue'] = [$column['issue']];
+            if (!empty($field['issue']) && is_array($field['issue'])) {
+                if (!isset($field['issue'][0])) {
+                    $field['issue'] = [$field['issue']];
                 }
 
-                $issues = $this->prepareIssues($column['issue'], $newColumn);
+                $issues = $this->prepareIssues($field['issue'], $newField);
 
-                $newColumn->setIssues($issues);
+                $newField->setIssues($issues);
             }
 
-            $hasColumnAnyIssues = $this->makeColumnValidation($newColumn);
+            $hasFieldAnyIssues = $this->makeFieldValidation($newField);
 
-            if ($hasColumnAnyIssues) {
+            if ($hasFieldAnyIssues) {
                 $res['hasErrors'] = true;
             }
 
-            $res['columns'][] = $newColumn;
+            $res['fields'][] = $newField;
         }
 
         return $res;
@@ -327,7 +336,7 @@ class SchemaService
     /**
      * @return array
      */
-    private function getExtendedColumns(): array
+    private function getExtendedFields(): array
     {
         return [
             [
@@ -383,7 +392,7 @@ class SchemaService
         ];
     }
 
-    private function getDefaultColumns(): array
+    private function getDefaultFields(): array
     {
         return [
             [
@@ -396,7 +405,7 @@ class SchemaService
         ];
     }
 
-    private function getCodelistColumns(): array
+    private function getCodelistFields(): array
     {
         return [
             [
@@ -425,10 +434,10 @@ class SchemaService
         return $properties;
     }
 
-    private function validateTable(Table $table): ConstraintViolationList
+    private function validateType(Type $type): ConstraintViolationList
     {
         /** @var ConstraintViolationList $errors */
-        $errors = $this->validator->validate($table);
+        $errors = $this->validator->validate($type);
 
         if (0 < $errors->count()) {
             $iterator = $errors->getIterator();
@@ -439,17 +448,17 @@ class SchemaService
                     continue;
                 }
 
-                $table->addViolation($violationItem);
+                $type->addViolation($violationItem);
             }
         }
 
         return $errors;
     }
 
-    private function validateColumn(Column $column): ConstraintViolationList
+    private function validateField(Field $field): ConstraintViolationList
     {
         /** @var ConstraintViolationList $errors */
-        $errors = $this->validator->validate($column);
+        $errors = $this->validator->validate($field);
 
         if (0 < $errors->count()) {
             $iterator = $errors->getIterator();
@@ -460,7 +469,7 @@ class SchemaService
                     continue;
                 }
 
-                $column->addViolation($violationItem);
+                $field->addViolation($violationItem);
             }
         }
 
@@ -475,19 +484,19 @@ class SchemaService
         );
     }
 
-    private function convertCodelistToTable(Codelist $codelist): Table
+    private function convertCodelistToType(Codelist $codelist): Type
     {
         $name = 'codelist__' . $codelist->getName();
-        $table = new Table();
-        $table->setName($name);
-        $columns = $this->prepareColumns($this->getCodelistColumns());
-        $table->addColumns($columns['columns']);
+        $type = new Type();
+        $type->setName($name);
+        $fields = $this->prepareFields($this->getCodelistFields());
+        $type->addFields($fields['fields']);
 
-        if (true === $columns['hasErrors']) {
-            $this->schema->addTableWithIssues($table);
+        if (true === $fields['hasErrors']) {
+            $this->schema->addTypeWithIssues($type);
         }
 
-        return $table;
+        return $type;
     }
 
     private function cleanUpCsvFile($contents)
@@ -521,7 +530,7 @@ class SchemaService
             $newIssue = new Issue($parent);
 
             if (!isset($issue['note'][0])) {
-                $issues[$idx]['note'] = [$issue['note']];
+                $issues[$idx]['note'] = [$issue['note'] ?? null];
             }
 
             usort(
@@ -571,13 +580,13 @@ class SchemaService
         return $newIssues;
     }
 
-    private function makeColumnValidation(Column $column): bool
+    private function makeFieldValidation(Field $field): bool
     {
-        $errors = $this->validateColumn($column);
+        $errors = $this->validateField($field);
 
         return (
             0 < $errors->count() ||
-            0 < count($column->getIssues())
+            0 < count($field->getIssues())
         );
     }
 }

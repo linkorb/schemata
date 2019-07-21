@@ -6,17 +6,17 @@ use RuntimeException;
 
 class Issue
 {
-    private const PARENT_TYPE_TABLE  = 'parentTable';
-    private const PARENT_TYPE_COLUMN = 'parentColumn';
+    private const PARENT_CLASS_TYPE  = 'parentType';
+    private const PARENT_CLASS_COLUMN = 'parentField';
 
     public const STATUS_OPEN    = 'open';
     public const STATUS_CLOSED  = 'closed';
     public const STATUS_UNKNOWN = 'unknown';
 
-    private $parentType;
+    private $parentClass;
 
     /**
-     * @var Table|Column
+     * @var Type|Field
      */
     private $parent;
 
@@ -31,7 +31,7 @@ class Issue
 
     /**
      * Issue constructor.
-     * @param $parent Table|Column
+     * @param $parent Type|Field
      */
     public function __construct($parent)
     {
@@ -47,19 +47,19 @@ class Issue
     }
 
     /**
-     * @param Table|Column $parent
+     * @param Type|Field $parent
      * @return Issue
      */
     private function setParent($parent): Issue
     {
         $this->parent = $parent;
 
-        if ($parent instanceof Table) {
-            $this->setParentType(self::PARENT_TYPE_TABLE);
-        } else if ($parent instanceof Column) {
-            $this->setParentType(self::PARENT_TYPE_COLUMN);
+        if ($parent instanceof Type) {
+            $this->setParentClass(self::PARENT_CLASS_TYPE);
+        } else if ($parent instanceof Field) {
+            $this->setParentClass(self::PARENT_CLASS_COLUMN);
         } else {
-            throw new RuntimeException('Unknown Parent Type');
+            throw new RuntimeException('Unknown Parent Class');
         }
 
         return $this;
@@ -68,17 +68,17 @@ class Issue
     /**
      * @return mixed
      */
-    public function getParentType()
+    public function getParentClass()
     {
-        return $this->parentType;
+        return $this->parentClass;
     }
 
     /**
-     * @param mixed $parentType
+     * @param mixed $parentClass
      */
-    private function setParentType($parentType): void
+    private function setParentClass($parentClass): void
     {
-        $this->parentType = $parentType;
+        $this->parentClass = $parentClass;
     }
 
     /**

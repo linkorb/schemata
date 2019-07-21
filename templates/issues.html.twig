@@ -7,38 +7,38 @@
         <thead>
         <tr>
             <th>Name</th>
-            <th>Table Issues</th>
-            <th>Column Issues</th>
+            <th>Type Issues</th>
+            <th>Field Issues</th>
         </tr>
         </thead>
         <tbody id="table-body">
-        {% for tableName, tableIssues in issues %}
+        {% for typeName, typeIssues in issues %}
             <tr>
                 <td>
-                    <a href="./table__{{ tableName }}.html">
+                    <a href="./type__{{ typeName }}.html">
                         <code class="badge badge-secondary">
-                            {{ tableName }}
+                            {{ typeName }}
                         </code>
                     </a>
                 </td>
                 <td>
-                    {% for idx, tableIssue in tableIssues.table %}
-                        <a href="./issue__{{ tableName }}__{{ idx }}.html">
-                            <code class="badge badge-{{ tableIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
-                                Table: <b>{{ tableName }}</b>,
-                                Type: {{ tableIssue.type }}
+                    {% for idx, typeIssue in typeIssues.type %}
+                        <a href="./issue__{{ typeName }}__{{ idx }}.html">
+                            <code class="badge badge-{{ typeIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                                Type: <b>{{ typeName }}</b>,
+                                Type: {{ typeIssue.type }}
                             </code>
                         </a>
                         <br/>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for columnName, columnIssues in tableIssues.column %}
-                        {% for idx, columnIssue in columnIssues %}
-                            <a href="./issue__{{ tableName }}__{{ columnName }}__{{ idx }}.html">
-                                <code class="badge badge-{{ columnIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
-                                    Column: <b>{{ columnName }}</b>,
-                                    Type: {{ columnIssue.type }}
+                    {% for fieldName, fieldIssues in typeIssues.field %}
+                        {% for idx, fieldIssue in fieldIssues %}
+                            <a href="./issue__{{ typeName }}__{{ fieldName }}__{{ idx }}.html">
+                                <code class="badge badge-{{ fieldIssue.isOpen ? 'danger' : 'success' }}" style="margin: .2em 0 .2em 0">
+                                    Field: <b>{{ fieldName }}</b>,
+                                    Type: {{ fieldIssue.type }}
                                 </code>
                             </a>
                             <br/>

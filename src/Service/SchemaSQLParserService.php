@@ -4,7 +4,7 @@ namespace LinkORB\Schemata\Service;
 
 use LinkORB\Schemata\Entity\Column;
 use LinkORB\Schemata\Entity\Schema;
-use LinkORB\Schemata\Entity\Table;
+use LinkORB\Schemata\Entity\Type;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\Statements\CreateStatement;
 use RuntimeException;
@@ -63,18 +63,18 @@ class SchemaSQLParserService
 
         foreach ($finder as $file) {
             $contents = $file->getContents();
-            $query = $this->normalizeToCreateTable($contents);
+            $query = $this->normalizeToCreateType($contents);
 
-            $table = $this->getTableStructure($query);
+            $type = $this->getTypeStructure($query);
 
-            $schema->setTable($table);
+            $schema->setType($type);
             $progressBar->advance();
         }
 
         return $schema;
     }
 
-    private function normalizeToCreateTable($contents): string
+    private function normalizeToCreateType($contents): string
     {
         $contents = $this->excludeBOM($contents);
 
@@ -100,7 +100,7 @@ class SchemaSQLParserService
         return str_replace(['[', ']'], '', $statementString);
     }
 
-    private function getTableStructure($query): Table
+    private function getTypeStructure($query): Type
     {
         $parser = new Parser($query);
 
@@ -114,8 +114,8 @@ class SchemaSQLParserService
             throw new RuntimeException('Wrong Statement.');
         }
 
-        $table = new Table();
-        $table->setName($statement->name->table);
+        $type = new Type();
+        $type->setName($statement->name->table);
 
         foreach ($statement->fields as $field) {
             if (empty($field->type)) { // Skip Constraint
@@ -130,10 +130,10 @@ class SchemaSQLParserService
             $column = new Column();
             $column->setName(str_replace(self::RESERVED_WORDS_PREFIX, '', $field->name));
             $column->setType($field->type->name . $parameters);
-            $table->addColumns([$column]);
+            $type->addColumns([$column]);
         }
 
-        return $table;
+        return $type;
     }
 
     private function excludeBOM($contents)

@@ -2,7 +2,7 @@
 
 namespace LinkORB\Schemata\Service;
 
-use LinkORB\Schemata\Entity\Table;
+use LinkORB\Schemata\Entity\Type;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class XMLGeneratorService extends AbstractGeneratorService
@@ -17,8 +17,8 @@ class XMLGeneratorService extends AbstractGeneratorService
 
         $encoder = new XmlEncoder();
 
-        foreach ($this->schema->getTables() as $table) {
-            $data = $this->prepareDataArray($table);
+        foreach ($this->schema->getTypes() as $type) {
+            $data = $this->prepareDataArray($type);
 
             $dump = $encoder->encode($data, XmlEncoder::FORMAT, [
                 XmlEncoder::ROOT_NODE_NAME => 'root',
@@ -26,22 +26,22 @@ class XMLGeneratorService extends AbstractGeneratorService
                 XmlEncoder::FORMAT_OUTPUT  => true,
             ]);
 
-            $filename = $table->getName();
+            $filename = $type->getName();
 
             file_put_contents($this->pathOutput . '/' . $filename . '.' . static::SCHEMA_EXT, $dump);
         }
     }
 
-    private function prepareDataArray(Table $table): array
+    private function prepareDataArray(Type $type): array
     {
         $data = [
             'table' => [
-                '@name'  => $table->getName(),
+                '@name'  => $type->getName(),
                 'column' => [],
             ],
         ];
 
-        foreach ($table->getColumns() as $column) {
+        foreach ($type->getColumns() as $column) {
             $data['table']['column'][] = [
                 '@name' => $column->getName(),
                 '@type' => $column->getType(),

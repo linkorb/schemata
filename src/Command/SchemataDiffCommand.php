@@ -35,11 +35,14 @@ class SchemataDiffCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Starting the Schema comparing...' . PHP_EOL);
+        $output->writeln('Starting the Schema comparing...');
 
+        $output->writeln('Get schema 1');
         $schemaOne = $this->getCleanedSchemaByPath($input->getArgument(self::ARGUMENT_FIRST_SCHEMA_PATH));
+        $output->writeln('Get schema 2');
         $schemaTwo = $this->getCleanedSchemaByPath($input->getArgument(self::ARGUMENT_SECOND_SCHEMA_PATH));
 
+        $output->writeln('Calculating diff...');
         $service = new DiffService();
         $diffLines = $service->calculateDiff($schemaOne, $schemaTwo);
 
