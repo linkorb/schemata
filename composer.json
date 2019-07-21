@@ -1,6 +1,6 @@
 {
     "name": "linkorb/schemata",
-    "description": "Schema annotation tool",
+    "description": "Schema tooling: modelling, documentation, generators, validators",
     "minimum-stability": "dev",
     "require": {
         "symfony/console": "^4.2",
