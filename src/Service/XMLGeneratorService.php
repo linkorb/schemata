@@ -1,8 +1,8 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
-use LinkORB\Schemata\Entity\Type;
+use Schemata\Entity\Type;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class XMLGeneratorService extends AbstractGeneratorService

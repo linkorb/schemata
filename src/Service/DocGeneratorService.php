@@ -1,9 +1,9 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
-use LinkORB\Schemata\Entity\Issue;
-use LinkORB\Schemata\Entity\Schema;
+use Schemata\Entity\Issue;
+use Schemata\Entity\Schema;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 

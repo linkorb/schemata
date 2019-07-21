@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "LinkORB\\Schemata\\": "src"
+            "Schemata\\": "src"
         },
         "classmap": [
             "src"

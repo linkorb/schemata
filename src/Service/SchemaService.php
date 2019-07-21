@@ -1,15 +1,15 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
-use LinkORB\Schemata\Entity\Codelist;
-use LinkORB\Schemata\Entity\Field;
-use LinkORB\Schemata\Entity\Issue;
-use LinkORB\Schemata\Entity\Note;
-use LinkORB\Schemata\Entity\Type;
-use LinkORB\Schemata\Entity\Tag;
-use LinkORB\Schemata\Entity\XmlPackage;
-use LinkORB\Schemata\Entity\Schema;
+use Schemata\Entity\Codelist;
+use Schemata\Entity\Field;
+use Schemata\Entity\Issue;
+use Schemata\Entity\Note;
+use Schemata\Entity\Type;
+use Schemata\Entity\Tag;
+use Schemata\Entity\XmlPackage;
+use Schemata\Entity\Schema;
 use RuntimeException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;

@@ -1,9 +1,9 @@
 <?php
 
-namespace LinkORB\Schemata\Entity;
+namespace Schemata\Entity;
 
-use LinkORB\Schemata\Validators\CamelCaseLower;
-use LinkORB\Schemata\Validators\SQLIdentifier;
+use Schemata\Validators\CamelCaseLower;
+use Schemata\Validators\SQLIdentifier;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 

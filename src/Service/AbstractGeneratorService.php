@@ -1,8 +1,8 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
-use LinkORB\Schemata\Entity\Schema;
+use Schemata\Entity\Schema;
 use RuntimeException;
 
 abstract class AbstractGeneratorService

@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schemata\Validators;
+namespace Schemata\Validators;
 
 use Symfony\Component\Validator\Constraint;
 

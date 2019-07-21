@@ -1,11 +1,11 @@
 <?php
 
-namespace LinkORB\Schemata\Command;
+namespace Schemata\Command;
 
-use LinkORB\Schemata\Service\DocGeneratorService;
-use LinkORB\Schemata\Service\SchemaPagesParserService;
-use LinkORB\Schemata\Service\SchemaProviderPath;
-use LinkORB\Schemata\Service\SchemaService;
+use Schemata\Service\DocGeneratorService;
+use Schemata\Service\SchemaPagesParserService;
+use Schemata\Service\SchemaProviderPath;
+use Schemata\Service\SchemaService;
 use Parsedown;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

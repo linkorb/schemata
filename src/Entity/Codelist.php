@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schemata\Entity;
+namespace Schemata\Entity;
 
 class Codelist
 {

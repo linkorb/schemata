@@ -26,12 +26,12 @@ if ($isAutoloadFound === false) {
     ));
 }
 
-use LinkORB\Schemata\Command\GenerateContextSchemaCommand;
-use LinkORB\Schemata\Command\GenerateGraphQLSchemaCommand;
-use LinkORB\Schemata\Command\GenerateHtmlDocCommand;
-use LinkORB\Schemata\Command\SchemataDiffCommand;
-use LinkORB\Schemata\Command\SchemataParseSQLCommand;
-use LinkORB\Schemata\Command\SchemataValidateCommand;
+use Schemata\Command\GenerateContextSchemaCommand;
+use Schemata\Command\GenerateGraphQLSchemaCommand;
+use Schemata\Command\GenerateHtmlDocCommand;
+use Schemata\Command\SchemataDiffCommand;
+use Schemata\Command\SchemataParseSQLCommand;
+use Schemata\Command\SchemataValidateCommand;
 use Symfony\Component\Console\Application;
 
 $app = new Application();

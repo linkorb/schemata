@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
 use Parsedown;
 use Symfony\Component\Finder\Finder;

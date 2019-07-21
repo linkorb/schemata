@@ -1,9 +1,9 @@
 <?php
 
-namespace LinkORB\Schemata\Command;
+namespace Schemata\Command;
 
-use LinkORB\Schemata\Service\SchemaSQLParserService;
-use LinkORB\Schemata\Service\XMLGeneratorService;
+use Schemata\Service\SchemaSQLParserService;
+use Schemata\Service\XMLGeneratorService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;

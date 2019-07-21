@@ -1,9 +1,9 @@
 <?php
 
-namespace LinkORB\Schemata\Command;
+namespace Schemata\Command;
 
-use LinkORB\Schemata\Service\SchemaProviderPath;
-use LinkORB\Schemata\Service\SchemaService;
+use Schemata\Service\SchemaProviderPath;
+use Schemata\Service\SchemaService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

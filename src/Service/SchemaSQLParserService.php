@@ -1,10 +1,10 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
-use LinkORB\Schemata\Entity\Column;
-use LinkORB\Schemata\Entity\Schema;
-use LinkORB\Schemata\Entity\Type;
+use Schemata\Entity\Column;
+use Schemata\Entity\Schema;
+use Schemata\Entity\Type;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\Statements\CreateStatement;
 use RuntimeException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace LinkORB\Schemata\Entity;
+namespace Schemata\Entity;
 
 use RuntimeException;
 
@@ -8,7 +8,7 @@ use RuntimeException;
  * Reflects single schema xml file as a package of tables
  *
  * Class XmlPackage
- * @package LinkORB\Schemata\Entity
+ * @package Schemata\Entity
  */
 class XmlPackage
 {

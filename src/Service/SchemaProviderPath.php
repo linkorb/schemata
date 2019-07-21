@@ -1,8 +1,8 @@
 <?php
 
-namespace LinkORB\Schemata\Service;
+namespace Schemata\Service;
 
-use LinkORB\Schemata\Interfaces\SchemaProviderInterface;
+use Schemata\Interfaces\SchemaProviderInterface;
 use RuntimeException;
 
 class SchemaProviderPath implements SchemaProviderInterface
