@@ -83,13 +83,13 @@
                 </td>
             </tr>
         {% endfor %}
-        {% for propertyName, propertyValue in type.properties %}
+        {% for property in type.properties %}
             <tr>
                 <td>
-                    <code>{{ propertyName }}</code>
+                    <code>{{ property.definition.name }}</code>
                 </td>
                 <td>
-                    <b>{{ propertyValue }}</b>
+                    <b>{{ property.value }}</b>
                 </td>
                 <td>
                     property

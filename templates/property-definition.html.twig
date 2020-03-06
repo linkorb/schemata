@@ -1,0 +1,10 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h2>Property Definition: {{ propertyDefinition.name }}</h2>
+    Classes: {{ propertyDefinition.getClassesAsString() }}<br />
+    Indexed: {{ propertyDefinition.isIndexed() ? 'Yes' : 'No' }}<br />
+    Localized: {{ propertyDefinition.isLocalized() ? 'Yes' : 'No' }}<br />
+
+    <a href="./property-definitions.html">Back to property definition index</a>
+{% endblock %}

@@ -73,7 +73,7 @@
             <td>Properties</td>
             <td>
                 {% for property in field.properties %}
-                    {{ property }}
+                    {{ property.definition.name }}={{ property.value }}<br />
                 {% endfor %}
             </td>
         </tr>

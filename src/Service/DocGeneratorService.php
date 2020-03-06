@@ -38,6 +38,8 @@ class DocGeneratorService extends AbstractGeneratorService
 
         $this->generateCodelists();
 
+        $this->generatePropertyDefinitions();
+
         $this->generateTaggedTypes();
 
         $this->generateValidationIssues();
@@ -106,6 +108,28 @@ class DocGeneratorService extends AbstractGeneratorService
                 $this->twig->render('codelist.html.twig', [
                     'name'  => $codelist->getName(),
                     'items' => $codelist->getItems(),
+                ])
+            );
+        }
+    }
+
+    private function generatePropertyDefinitions(): void
+    {
+        $definitions = $this->schema->getPropertyDefinitions();
+        ksort($definitions);
+
+        file_put_contents(
+            $this->pathOutput . '/property-definitions.html',
+            $this->twig->render('property-definitions.html.twig', [
+                'propertyDefinitions' => $definitions,
+            ])
+        );
+
+        foreach ($definitions as $definition) {
+            file_put_contents(
+                $this->pathOutput . '/property-definition__' . $definition->getName() . '.html',
+                $this->twig->render('property-definition.html.twig', [
+                    'propertyDefinition'  => $definition,
                 ])
             );
         }

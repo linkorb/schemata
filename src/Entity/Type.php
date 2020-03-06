@@ -21,7 +21,7 @@ class Type
     /** @var Tag[] */
     private $tags = [];
 
-    /** @var array */
+    /** @var Property[] */
     private $properties = [];
 
     /**
@@ -115,7 +115,7 @@ class Type
     }
 
     /**
-     * @return array
+     * @return Property[]
      */
     public function getProperties(): array
     {
@@ -123,7 +123,7 @@ class Type
     }
 
     /**
-     * @param array $properties
+     * @param Property[] $properties
      * @return Type
      */
     public function setProperties(array $properties): Type

@@ -26,6 +26,12 @@ class Schema
      */
     private $typesWithIssues = [];
 
+     /**
+     * @var PropertyDefinition[]
+     */
+    private $propertyDefinitions = [];
+
+
     public function getTaggedTypes(): array
     {
         return $this->taggedTypes;
@@ -63,6 +69,26 @@ class Schema
         $this->types[$type->getName()] = $type;
 
         return $this;
+    }
+
+    public function setPropertyDefinition(PropertyDefinition $definition): Schema
+    {
+        $this->propertyDefinitions[$definition->getName()] = $definition;
+
+        return $this;
+    }
+
+    public function getPropertyDefinitions(): array
+    {
+        return $this->propertyDefinitions;
+    }
+
+    public function getPropertyDefinition(string $name): PropertyDefinition
+    {
+        if (!isset($this->propertyDefinitions[$name])) {
+            throw new RuntimeException("Undefined property definition: " . $name);
+        }
+        return $this->propertyDefinitions[$name];
     }
 
     public function addCodelist(Codelist $codelist): void
