@@ -11,7 +11,7 @@
         "symfony/yaml": "^4.2",
         "symfony/validator": "^4.2",
         "phpmyadmin/sql-parser": "^5.0",
-        "erusev/parsedown": "dev-master"
+        "erusev/parsedown": "^1.0"
     },
     "require-dev": {
         "pitpit/php-diff": "^1.0@dev"
