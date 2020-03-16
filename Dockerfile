@@ -13,7 +13,7 @@ RUN /usr/src/linkorb-schemata/vendor/bin/schemata generate:html-doc /usr/src/lin
 ARG DEPLOY_KEY_PLAZA
 RUN mkdir -p -m 0777 /usr/src/plaza && mkdir /app/public/plaza
 RUN ssh-agent sh -c 'echo "$DEPLOY_KEY_PLAZA" | ssh-add -; git clone git@github.com:linkorb/plaza /usr/src/plaza'
-RUN /usr/src/linkorb-schemata/vendor/bin/schemata generate:html-doc /usr/src/plaza/schema /app/public/linkorb/
+RUN /usr/src/linkorb-schemata/vendor/bin/schemata generate:html-doc /usr/src/plaza/schema /app/public/plaza/
 
 # userbase
 #ARG DEPLOY_KEY_USERBASE
@@ -29,6 +29,6 @@ RUN /usr/src/linkorb-schemata/vendor/bin/schemata generate:html-doc /usr/src/pla
 
 # herald
 
-RUN cd /usr/src && rm -rf *
+RUN cd /usr/src && rm -rf * && cd /app/public/ && rm -rf build
 
 ENTRYPOINT ["apache2-foreground"]
