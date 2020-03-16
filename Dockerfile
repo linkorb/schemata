@@ -15,6 +15,12 @@ RUN mkdir -p -m 0777 /usr/src/plaza && mkdir /app/public/plaza
 RUN ssh-agent sh -c 'echo "$DEPLOY_KEY_PLAZA" | ssh-add -; git clone git@github.com:linkorb/plaza /usr/src/plaza'
 RUN /usr/src/linkorb-schemata/vendor/bin/schemata generate:html-doc /usr/src/plaza/schema /app/public/plaza/
 
+# chipsoft
+ARG DEPLOY_KEY_CHIPSOFT
+RUN mkdir -p -m 0777 /usr/src/chipsoft && mkdir /app/public/chipsoft
+RUN ssh-agent sh -c 'echo "$DEPLOY_KEY_CHIPSOFT" | ssh-add -; git clone git@github.com:linkorb/chipsoft-hix-schemata /usr/src/chipsoft'
+RUN /usr/src/linkorb-schemata/vendor/bin/schemata generate:html-doc /usr/src/chipsoft/schema /app/public/chipsoft/
+
 # userbase
 #ARG DEPLOY_KEY_USERBASE
 #RUN mkdir -p -m 0777 /usr/src/userbase && mkdir /app/public/userbase

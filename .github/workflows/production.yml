@@ -21,7 +21,7 @@ jobs:
     - name: Docker login
       run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login docker.pkg.github.com --username automation@linkorb.com --password-stdin
     - name: Build the Docker image
-      run: docker build . --build-arg DEPLOY_KEY_LINKORB="${{ secrets.DEPLOY_KEY_LINKORB }}" --build-arg DEPLOY_KEY_PLAZA="${{ secrets.DEPLOY_KEY_PLAZA }}" --build-arg DEPLOY_KEY_HUB="${{ secrets.DEPLOY_KEY_HUB }}" --build-arg DEPLOY_KEY_USERBASE="${{ secrets.DEPLOY_KEY_USERBASE }}" --tag ${DOCKER_TAG}:latest --file Dockerfile
+      run: docker build . --build-arg DEPLOY_KEY_LINKORB="${{ secrets.DEPLOY_KEY_LINKORB }}" --build-arg DEPLOY_KEY_PLAZA="${{ secrets.DEPLOY_KEY_PLAZA }}" --build-arg DEPLOY_KEY_HUB="${{ secrets.DEPLOY_KEY_HUB }}" --build-arg DEPLOY_KEY_USERBASE="${{ secrets.DEPLOY_KEY_USERBASE }}" --build-arg DEPLOY_KEY_CHIPSOFT="${{ secrets.DEPLOY_KEY_CHIPSOFT }}" --tag ${DOCKER_TAG}:latest --file Dockerfile
     - name: Docker push with latest tag
       run: docker push ${DOCKER_TAG}:latest
     - name: Docker retag new image with commit hash
