@@ -1,8 +1,6 @@
 LinkORB Schema Annotation Tool
 ==============================
 
-![Build container for production](https://github.com/linkorb/schemata/workflows/Build%20container%20for%20production/badge.svg)
-
 ## Installation
 
 You can use the included generator tools using the following steps
